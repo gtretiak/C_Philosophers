@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:25:24 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/06/20 13:17:35 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/06/20 19:11:47 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,3 +23,13 @@ int	main(int argc, char **argv)
 	}
 	exit(EXIT_SUCCESS);
 }
+
+/*
+ *store the user input to a struct
+ *create threads aka philos
+ *create routine function with a loop until one philo died thus we need the check for it
+ *determine routine and the order: think, eat, sleep, repeat 
+ *implement logs
+ *lock/unlock the same value
+ *bonus: semaphors and processes
+ */
