@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:21:39 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/06/20 18:24:10 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/06/21 17:53:14 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,15 +19,20 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <pthread.h>
+#include <stdbool.h>
+#include <limits.h>
 
 typedef struct s_philo
 {
 	int	n_philos;
 	int	position;
-	int	t_eat;
-	int	t_sleep;
-	int	t_die;
-	int	iter;
+	bool	ready_to_eat; //might be a signal to the waiter ("Can I eat?")
+	int	priority;//Then waiter might see at the priority and let them go ahead
+	unsigned int	t_eat;//akin burst time
+	unsigned int	t_sleep;//paused
+	unsigned int	t_die;//starvation deadline
+	int	n_meals;
+	pthread_t	philo_acting;
 }	t_philo;
 
 #define ARGS "Invalid number of arguments. Should be:\n1. ./philo\n2." \
@@ -45,13 +50,15 @@ typedef struct s_philo
  * malloc, free
  * usleep - to pause a thread execution
  * gettimeofday
- * pthread_create - to create a new thread running foo
- * pthread_detach - to release resources on exit
- * pthread_join - to wait for the non-detached thread
+ * pthread_create - to create a new thread running a routine function
+ * pthread_detach - to release resources on exit (if we don't need anything from it)
+ * pthread_join - to wait for the non-detached thread (e.g. to use return value)
  * pthread_mutex_init - to initialize a mutex
  * pthread_mutex_destroy - to free mutex resources (should be unlocked)
  * pthread_mutex_lock, pthread_mutex_unlock
  * */
+void	init(int argc, char **argv);
 void	handle_error(char *msg, int code);
+void	*dinner(void *arg);
 
 #endif

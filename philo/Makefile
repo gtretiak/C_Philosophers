@@ -2,7 +2,7 @@ NAME = philo
 HEADER = philo.h
 CFLAGS = -Wall -Wextra -Werror
 SPECFLAG = -pthread
-SRCS = main.c errors.c
+SRCS = main.c errors.c settings.c dinner.c
 DIR = ./
 OBJS = $(addprefix $(DIR), $(SRCS:.c=.o))
 TMP = .tmp
