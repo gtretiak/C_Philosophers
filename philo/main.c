@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:25:24 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/06/27 19:10:40 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/06/28 20:18:59 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,21 +14,23 @@
 
 int	main(int argc, char **argv)
 {
-	t_data	table;
+	t_data	cafe;
 
 	if (argc == 5 || argc == 6)
 	{
-		add_and_check_arguments(argv, &table);
-		init(&table);
-		run_simulation(&table);
-		cleanup(&table, 0, NULL);
+		add_and_check_arguments(argv, &cafe);
+		init(&cafe);
+		run_simulation(&cafe);
+		cleanup(&cafe, 4);
 	}
 	else
-		handle_error(ARGS, 2);
+		handle_error(&cafe, 1, ARGS);
 	exit(EXIT_SUCCESS);
 }
 /*
- *create threads aka philos
+ * 1:10:10 - continue!
+ *
+ *
  *create routine function with a loop until one philo died thus we need the check for it
  *determine routine and the order: think, eat, sleep, repeat 
  *implement logs
@@ -52,11 +54,4 @@ int	main(int argc, char **argv)
 
  *   Starvation - when the process with lower priority is long waiting (A philo dies)
  *   When a philo is ready, it should step in a queue?
- *   That's how by using their priority we can allow the threads to take a fork
-
-https://www.youtube.com/watch?v=OIKr2ll2Nd8&list=PLfqABt5AS4FmuQf70psXrsMLEDQXNkLq2&index=9
-https://www.youtube.com/watch?v=zOpzGHwJ3MU
-https://www.codequoi.com/en/threads-mutexes-and-concurrent-programming-in-c/
-https://linuxhint.com/pthread-join-multiple-threads-example/?source=post_page-----7157cc05315---------------------------------------
-https://www.cs.cornell.edu/courses/cs4411/2020sp/schedule/slides/03-Interrupts-Quanta.pdf
-*/
+ *   That's how by using their priority we can allow the threads to take a fork*/

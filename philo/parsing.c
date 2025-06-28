@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 12:56:31 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/06/27 18:52:25 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/06/28 15:16:23 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static bool	ft_isdigit(char c)
 	return (c >= 48 && c <= 57);
 }
 
-static long	spec_atol(char *s)
+static long	spec_atol(t_data *cafe, char *s)
 {
 	long	res;
 	int	i;
@@ -34,32 +34,34 @@ static long	spec_atol(char *s)
 	if (s[i] && (s[i] == '-' || s[i] == '+'))
 	{
 		if (s[i] == '-')
-			handle_error(NEGATIVE, 2);
+			handle_error(cafe, 2, INVALID);
 		i++;
 	}
 	if (s[i] && !ft_isdigit(s[i]))
-		handle_error(NON_INT, 2);
+		handle_error(cafe, 2, INVALID);
 	while (s[i] && ft_isdigit(s[i]))
 	{
 		res = res * 10 + s[i] - '0';
 		if (res > INT_MAX)
-			handle_error(NON_INT, 2);
+			handle_error(cafe, 2, INVALID);
 		i++;
 	}
 	return (res);
 }
 
-void	add_and_check_arguments(char **argv, t_data *table)
+void	add_and_check_arguments(char **argv, t_data *cafe)
 {
+	cafe->table = malloc(sizeof(t_common_data));
+        if (cafe->table == NULL)
+                handle_error(cafe, 1, MALLOC);
 	if (argv[5])
-		table->n_meals = spec_atol(argv[5]);
+		cafe->table->n_meals = spec_atol(cafe, argv[5]);
 	else
-		table->n_meals = -1;
-	if (table->n_meals == 0)
-		handle_error(NO_MEALS, 2);
-	table->n_philos = spec_atol(argv[1]);
-	table->t_die = spec_atol(argv[2]) * 1e3;
-	table->t_eat = spec_atol(argv[3]) * 1e3;
-	table->t_sleep = spec_atol(argv[4]) * 1e3;
-		table->n_meals = -1;
+		cafe->table->n_meals = -1;
+	if (cafe->table->n_meals == 0)
+                handle_error(cafe, 2, NO_MEALS);
+	cafe->table->n_philos = spec_atol(cafe, argv[1]);
+	cafe->table->t_die = spec_atol(cafe, argv[2]) * 1e3;
+	cafe->table->t_eat = spec_atol(cafe, argv[3]) * 1e3;
+	cafe->table->t_sleep = spec_atol(cafe, argv[4]) * 1e3;
 }

@@ -2,7 +2,7 @@ NAME = philo
 HEADER = philo.h
 CFLAGS = -Wall -Wextra -Werror
 SPECFLAG = -pthread
-SRCS = main.c errors.c settings.c dinner.c
+SRCS = main.c free_and_errors.c settings.c parsing.c dinner.c utils.c
 DIR = ./
 OBJS = $(addprefix $(DIR), $(SRCS:.c=.o))
 TMP = .tmp
@@ -19,7 +19,13 @@ $(DIR)%.o: $(DIR)%.c $(HEADER)
 $(NAME): $(OBJS)
 	@echo "Linking object files into the final executable...";
 	@cc $(OBJS) -o $@ $(SPECFLAG)
-	@echo "Done.";
+	@echo "Done.\n\n\n";
+	@echo "Welcome to the \"🇬 🇷 🇪 🇪 🇨 🇪 "\
+	"\" cafe!\n"\
+	"Run the program with arguments:\n"\
+	" 1. ./philo\n 2." \
+	"number_of_philosophers\n 3. time_to_die\n 4. time_to_eat\n 5. "\
+	"time_to_sleep\n+6. [optional] number_of_times_each_philosopher_must_eat"
 	@rm -rf $(TMP);
 
 .PHONY: clean fclean re all

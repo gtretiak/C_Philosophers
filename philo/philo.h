@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:21:39 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/06/27 19:14:20 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/06/28 20:12:41 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,50 +22,69 @@
 #include <stdbool.h>
 #include <limits.h>
 
+#define ARGS "Error: invalid number of arguments. Exit.\n"
+#define INVALID "Error: all arguments should be positive integers. Exit.\n"
+#define NO_MEALS "Error: there is no food (0 meals). Exit.\n"
+#define MALLOC "Error: malloc has failed. Exit.\n"
+#define THREAD "Error: thread has failed. Exit.\n"
+#define MUTEX "Error: mutex has failed. Exit.\n"
+#define FORK "has taken a fork\n"
+#define EAT "is eating\n"
+#define SLEEP "is sleeping\n"
+#define THINK "is thinking\n"
+#define DIED "died\n"
+
 typedef struct s_fork
 {
-	pthread_mutex_t	mtx;
-	long	fork_id;
-}	t_fork;
+        pthread_mutex_t mtx;
+	int	index;
+}       t_fork;
+
+typedef struct s_common_data
+{
+	pthread_mutex_t lock;
+	struct timeval	t_start;
+	long    n_philos;
+        long    t_eat;
+        long    t_sleep;
+        long    t_die;
+        long    n_meals;
+	bool	all_ready;
+       	bool	dinner_is_over;
+}	t_common_data;
 
 typedef struct s_philo
 {
-	int	position;
-	bool	ready_to_eat; //might be a signal to the waiter ("Can I eat?")
-	int	priority;//Then waiter might see at the priority and let them go ahead
-	long	t_last_meal;
-	t_fork	*first_fork;
-	t_fork	*second_fork;
-	pthread_t	philo_acting;
-}	t_philo;
+        pthread_t	philo_acting;
+	int     position;
+	bool	allowed_to_eat; //or ready to eat as a signal to the waiter?
+				//priority for the waiter? 
+	bool	rip;
+	int	meals_eaten;
+	bool	full;
+        long    t_last_meal;
+	t_common_data	*table;
+        t_fork  *first_fork;
+        t_fork  *second_fork;
+}       t_philo;
 
 typedef struct s_data
 {
-	long	n_philos;
-	long	t_eat;//akin burst time
-	long	t_sleep;//paused
-	long	t_die;//starvation deadline
-	long	n_meals;
-//	long	t_start;
-	bool	the_end;
-	t_fork	*all_forks;
-	t_philo	*all_philos;
-}	t_data;
+	t_common_data	*table;
+        t_fork  *all_forks;
+        t_philo *all_philos;
+	pthread_t	waiter;
+}       t_data;
 
-#define ARGS "Invalid number of arguments. Should be:\n1. ./philo\n2." \
-" number_of_philosophers\n3. time_to_die\n4. time_to_eat\n5. " \
-"time_to_sleep\n+6. [optional] number_of_times_each_philosopher_must_eat." \
-"Exiting."
-#define NEGATIVE "The arguments must not be negative numbers. Exiting."
-#define NON_INT "The arguments must be integer type. Exiting."
-#define NO_MEALS "There is no food (0 meals). Exiting."
-#define MALLOC "Malloc has failed. Exiting."
-#define FORK "has taken a fork"
-#define EAT "is eating"
-#define SLEEP "is sleeping"
-#define THINK "is thinking"
-#define DIE "died"
-
+typedef enum e_opcode
+{
+	INIT,
+	LOCK,
+	UNLOCK,
+	DESTROY,
+	CREATE,
+	JOIN
+}	t_opcode;
 /*
  * memset - to set a memory chunk with value
  * printf, write
@@ -79,12 +98,16 @@ typedef struct s_data
  * pthread_mutex_destroy - to free mutex resources (should be unlocked)
  * pthread_mutex_lock, pthread_mutex_unlock
  * */
-void	add_and_check_arguments(char **argv, t_data *table);
-void	init(int argc, char **argv);
-void	handle_error(char *msg, int code);
-void	run_simulation(t_data *table);
-void	cleanup(t_data *table, int code, char *msg);
-void	*dinner(void *arg);
-void	*serving(void *arg);
+
+void    add_and_check_arguments(char **argv, t_data *cafe);
+void    handle_error(t_data *cafe, int code, char *msg);
+void    cleanup(t_data *cafe, int code);
+void    init(t_data *cafe);
+void    *dinner(void *arg);
+void    *serving(void *arg);
+void    run_simulation(t_data *cafe);
+void	thread_handler(pthread_t *thread, t_opcode opcode, void *(*foo)(void *), t_data *cafe);
+void	mutex_handler(pthread_mutex_t *mutex, t_opcode opcode, t_data *cafe);
+void    wait_others(t_philo *philo);
 
 #endif

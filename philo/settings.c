@@ -6,38 +6,72 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/21 17:51:08 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/06/27 19:13:55 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/06/28 19:55:39 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-/*
-void	assign_forks(t_philo *philo, t_forks *forks, int pos)
-{
-	philo->right_fork = &forks[pos];
-	philo->left_fork = &forks[(pos + 1) % philo->position];
-}*/
 
-void	init(t_data *table)
+static void	assign_forks(t_philo *philo, t_fork *forks, int i, int n_philo)
+{
+	int	left_fork;
+	int	right_fork;
+
+	left_fork = i;
+	if (philo->position != 0)
+		right_fork = (i + 1) % n_philo;
+	else
+		right_fork = n_philo - 1;
+	philo->first_fork = &forks[right_fork];
+	philo->first_fork->index = right_fork;
+	philo->second_fork = &forks[left_fork];
+	philo->second_fork->index = left_fork;
+	if (philo->position % 2)
+	{
+		philo->first_fork = &forks[left_fork];
+		philo->first_fork->index = left_fork;
+		philo->second_fork = &forks[right_fork];
+		philo->second_fork->index = right_fork;
+	}
+	printf("The %d philo should always take "
+		"%d (first) fork and %d (second) fork\n", 
+		philo->position, philo->first_fork->index, philo->second_fork->index);
+}
+
+static void	setup_private(t_data *cafe, int i)
+{
+	cafe->all_philos[i].position = i + 1;
+	cafe->all_philos[i].rip = false;
+	cafe->all_philos[i].meals_eaten = 0;
+	cafe->all_philos[i].full = false;
+	cafe->all_philos[i].table = cafe->table;
+	cafe->all_philos[i].allowed_to_eat = true;
+}
+
+static void	setup_common(t_data *cafe)
+{
+	cafe->table->dinner_is_over = false;
+	cafe->table->all_ready = false;
+}
+
+void	init(t_data *cafe)
 {
 	int	i;
-	pthread_t	waiter;
 
 	i = -1;
-	table->the_end = false;
-	table->all_philos = malloc(table->n_philos * sizeof(t_philo));//an array of philos
-	if (table->all_philos == NULL)
-		handle_error(MALLOC, 2);
-	table->all_forks = malloc(table->n_philos * sizeof(t_fork));//an array of forks
-	if (table->all_forks == NULL)
-		cleanup(&table, 2, MALLOC);
-	while (++i < table->n_philos)
+	cafe->all_philos = malloc(cafe->table->n_philos * sizeof(t_philo));
+	if (cafe->all_philos == NULL)
+		handle_error(cafe, 2, MALLOC);
+	cafe->all_forks = malloc(cafe->table->n_philos * sizeof(t_fork));
+	if (cafe->all_forks == NULL)
+		handle_error(cafe, 3, MALLOC);
+	setup_common(cafe);
+	while (++i < cafe->table->n_philos)
 	{
-		pthread_mutex_init(&table->all_forks[i].mtx);
-/*		table->all_forks[i].fork_id = i;
-		table->all_philos[i].position = i + 1;
-		table->all_philos[i].ready_to_eat = true;
-		assign_forks(table->all_philos[i], table->all_forks, i);*/
+		setup_private(cafe, i);
+		mutex_handler(&cafe->all_forks[i].mtx, INIT, cafe);
+		assign_forks(&cafe->all_philos[i], cafe->all_forks, i, cafe->table->n_philos);
 	}
-	pthread_create(&waiter, NULL, serving, table);
+	cafe->table->all_ready = true;
+	mutex_handler(&cafe->table->lock, INIT, cafe);
 }
