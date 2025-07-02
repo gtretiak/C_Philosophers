@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/21 17:51:08 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/06/28 19:55:39 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/02 18:53:28 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,15 +26,15 @@ static void	assign_forks(t_philo *philo, t_fork *forks, int i, int n_philo)
 	philo->first_fork->index = right_fork;
 	philo->second_fork = &forks[left_fork];
 	philo->second_fork->index = left_fork;
-	if (philo->position % 2)
+	if (philo->position % 2 == 0)
 	{
 		philo->first_fork = &forks[left_fork];
 		philo->first_fork->index = left_fork;
 		philo->second_fork = &forks[right_fork];
 		philo->second_fork->index = right_fork;
 	}
-	printf("The %d philo should always take "
-		"%d (first) fork and %d (second) fork\n", 
+	printf("The %lu philo should always take "
+		"%d (first) fork and %d (second) fork\n",
 		philo->position, philo->first_fork->index, philo->second_fork->index);
 }
 
@@ -50,8 +50,9 @@ static void	setup_private(t_data *cafe, int i)
 
 static void	setup_common(t_data *cafe)
 {
-	cafe->table->dinner_is_over = false;
+	cafe->table->dinner_is_over = 0;
 	cafe->table->all_ready = false;
+	cafe->table->running_threads = 0;
 }
 
 void	init(t_data *cafe)
@@ -69,9 +70,16 @@ void	init(t_data *cafe)
 	while (++i < cafe->table->n_philos)
 	{
 		setup_private(cafe, i);
-		mutex_handler(&cafe->all_forks[i].mtx, INIT, cafe);
-		assign_forks(&cafe->all_philos[i], cafe->all_forks, i, cafe->table->n_philos);
+		if (mutex_handler(&cafe->all_forks[i].mtx, INIT))
+			handle_error(cafe, 4, MUTEX);
+		if (mutex_handler(&cafe->all_philos[i].philo_lock, INIT))
+			handle_error(cafe, 4, MUTEX);
+		assign_forks(&cafe->all_philos[i], cafe->all_forks,
+			i, cafe->table->n_philos);
 	}
 	cafe->table->all_ready = true;
-	mutex_handler(&cafe->table->lock, INIT, cafe);
+	if (mutex_handler(&cafe->table->lock, INIT))
+		handle_error(cafe, 4, MUTEX);
+	if (mutex_handler(&cafe->table->print_lock, INIT))
+		handle_error(cafe, 4, MUTEX);
 }

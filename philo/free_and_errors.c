@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/28 16:43:56 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/06/28 19:11:03 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/02 19:08:23 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,47 +36,42 @@ void	cleanup(t_data *cafe, int code)
 			if (code == 4)
 			{
 				while (++i < cafe->table->n_philos)
-					mutex_handler(&cafe->all_forks[i].mtx, DESTROY, cafe);
-			        mutex_handler(&cafe->table->lock, DESTROY, cafe);
+				{
+					mutex_handler(&cafe->all_forks[i].mtx, DESTROY);
+					mutex_handler(&cafe->all_philos[i].philo_lock, DESTROY);
+				}
+				mutex_handler(&cafe->table->lock, DESTROY);
+				mutex_handler(&cafe->table->print_lock, DESTROY);
 				free(cafe->all_forks);
-				thread_handler(&cafe->waiter, JOIN, NULL, NULL);
 			}
-			i = -1;
-			thread_handler(&cafe->waiter, JOIN, NULL, NULL);
-			while (++i < cafe->table->n_philos)
-				thread_handler(&cafe->all_philos[i].philo_acting, JOIN, NULL, NULL);
 			free(cafe->all_philos);
 		}
 		free(cafe->table);
 	}
 }
 
-void	thread_handler(pthread_t *thread, t_opcode opcode, void *(*foo)(void *), t_data *cafe)
+void	threading(pthread_t *th, t_code code, void *(*f)(void *), t_data *cafe)
 {
 	int	status;
 
 	status = 0;
-	if (opcode == CREATE)
-		status = pthread_create(thread, NULL, foo, cafe);
-	else if (opcode == JOIN)
-		status = pthread_join(*thread, NULL);
+	if (code == CREATE)
+		status = pthread_create(th, NULL, f, cafe);
+	else if (code == JOIN)
+		status = pthread_join(*th, NULL);
 	if (status && cafe)
 		handle_error(cafe, 4, THREAD);
 }
 
-void	mutex_handler(pthread_mutex_t *mutex, t_opcode opcode, t_data *cafe)
+int	mutex_handler(pthread_mutex_t *mutex, t_code code)
 {
-	int	status;
-
-	status = 0;
-	if (opcode == INIT)
-		status = pthread_mutex_init(mutex, NULL);
-	else if (opcode == LOCK)
-		status = pthread_mutex_lock(mutex);
-	else if (opcode == UNLOCK)
-		status = pthread_mutex_unlock(mutex);
-	else if (opcode == DESTROY)
-		status = pthread_mutex_destroy(mutex);
-	if (status && cafe)
-		handle_error(cafe, 4, MUTEX);
+	if (code == INIT)
+		return (pthread_mutex_init(mutex, NULL));
+	else if (code == LOCK)
+		return (pthread_mutex_lock(mutex));
+	else if (code == UNLOCK)
+		return (pthread_mutex_unlock(mutex));
+	else if (code == DESTROY)
+		return (pthread_mutex_destroy(mutex));
+	return (1);
 }

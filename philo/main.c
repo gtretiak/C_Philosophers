@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:25:24 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/06/28 20:18:59 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/02 16:25:17 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,6 @@ int	main(int argc, char **argv)
 	exit(EXIT_SUCCESS);
 }
 /*
- * 1:10:10 - continue!
- *
  *
  *create routine function with a loop until one philo died thus we need the check for it
  *determine routine and the order: think, eat, sleep, repeat 
