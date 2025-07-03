@@ -152,6 +152,14 @@ int	eating_phase(t_philo *philo)
 		philo->t_last_meal = get_time();
 		if (mutex_handler(&philo->philo_lock, UNLOCK))
 			return (1);
+		if (printing_status(philo, EAT))
+			return (1);
+		if (precise_usleep(philo->table->t_eat, philo->table))
+			return (1);
+		if (mutex_handler(&philo->first_fork->mtx, UNLOCK))
+			return (1);
+		if (mutex_handler(&philo->second_fork->mtx, UNLOCK))
+			return (1);
 		if (philo->table->n_meals != -1
 			&& ++philo->meals_eaten >= philo->table->n_meals)
 		{
@@ -161,14 +169,6 @@ int	eating_phase(t_philo *philo)
 			if (mutex_handler(&philo->philo_lock, UNLOCK))
 				return (1);
 		}
-		if (printing_status(philo, EAT))
-			return (1);
-		if (precise_usleep(philo->table->t_eat, philo->table))
-			return (1);
-		if (mutex_handler(&philo->first_fork->mtx, UNLOCK))
-			return (1);
-		if (mutex_handler(&philo->second_fork->mtx, UNLOCK))
-			return (1);
 	}
 	return (0);
 }
@@ -192,8 +192,6 @@ void	*dinner(void *arg)
 		return (check);
 	while (!philo->table->dinner_is_over)
 	{
-		if (philo->full)
-			break ;
 		if (eating_phase(philo))
 			return (check);
 		if (printing_status(philo, SLEEP))
@@ -227,7 +225,7 @@ void    *serving(void *arg)
 	while (all_running(cafe->table) != 1)
 		;
 	iter = cafe->table->n_philos;
-	while (iter && !cafe->table->dinner_is_over)
+	while (!cafe->table->dinner_is_over)
 	{
 		i = -1;
 		while (++i < iter && !cafe->table->dinner_is_over)
@@ -239,7 +237,7 @@ void    *serving(void *arg)
 					handle_error(cafe, 4, MUTEX);
 					return (check);
 				}
-				cafe->table->dinner_is_over = true;
+				cafe->table->dinner_is_over = 1;
 				if (mutex_handler(&cafe->table->lock, UNLOCK))
 				{
 					handle_error(cafe, 4, MUTEX);
@@ -247,20 +245,16 @@ void    *serving(void *arg)
 				}
 				return (NULL);
 			}
-			else if (!cafe->all_philos[i].allowed_to_eat)
-				continue ;
 			else if (cafe->all_philos[i].full)
 			{
-				cafe->all_philos[i].allowed_to_eat = false;
-				iter--;
-				if (!iter)
+				if (++cafe->table->n_full >= iter)
 				{
 					if (mutex_handler(&cafe->table->lock, LOCK))
 					{
 						handle_error(cafe, 4, MUTEX);
 						return (check);
 					}
-					cafe->table->dinner_is_over = true;
+					cafe->table->dinner_is_over = 1;
 					if (mutex_handler(&cafe->table->lock, UNLOCK))
 					{
 						handle_error(cafe, 4, MUTEX);

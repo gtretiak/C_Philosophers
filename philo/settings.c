@@ -51,8 +51,9 @@ static void	setup_private(t_data *cafe, int i)
 static void	setup_common(t_data *cafe)
 {
 	cafe->table->dinner_is_over = 0;
-	cafe->table->all_ready = false;
+	cafe->table->all_ready = 0;
 	cafe->table->running_threads = 0;
+	cafe->table->n_full = 0;
 }
 
 int	init(t_data *cafe)

@@ -52,6 +52,7 @@ typedef struct s_common_data
 	long			t_sleep;
 	long			t_die;
 	long			n_meals;
+	long			n_full;
 	long			running_threads;
 	long			all_ready;
 	long			dinner_is_over;
