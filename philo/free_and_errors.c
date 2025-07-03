@@ -12,16 +12,16 @@
 
 #include "philo.h"
 
-void	handle_error(t_data *cafe, int code, char *msg)
+int	handle_error(t_data *cafe, int code, char *msg)
 {
 	short	i;
 
 	i = -1;
 	while (msg[++i])
-		write(code, &msg[i], 1);
+		write(2, &msg[i], 1);
 	if (code > 1)
 		cleanup(cafe, code);
-	exit(code);
+	return(code);
 }
 
 void	cleanup(t_data *cafe, int code)

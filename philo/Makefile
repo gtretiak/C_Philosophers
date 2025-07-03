@@ -14,7 +14,7 @@ $(DIR)%.o: $(DIR)%.c $(HEADER)
 		echo "Compiling source files into object files...";\
 		touch $(TMP); \
 	fi
-	@cc $(CFLAGS) -g -I$(HEADER) -c $< -o $@
+	@cc $(CFLAGS) -g -I. -c $< -o $@
 
 $(NAME): $(OBJS)
 	@echo "Linking object files into the final executable...";

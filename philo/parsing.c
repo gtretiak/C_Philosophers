@@ -22,7 +22,7 @@ static bool	ft_isdigit(char c)
 	return (c >= 48 && c <= 57);
 }
 
-static long	spec_atol(t_data *cafe, char *s)
+static long	spec_atol(char *s)
 {
 	long	res;
 	int		i;
@@ -34,40 +34,49 @@ static long	spec_atol(t_data *cafe, char *s)
 	if (s[i] && (s[i] == '-' || s[i] == '+'))
 	{
 		if (s[i] == '-')
-			handle_error(cafe, 2, INVALID);
+			return (-2);
 		i++;
 	}
 	if (s[i] && !ft_isdigit(s[i]))
-		handle_error(cafe, 2, INVALID);
+		return (-2);
 	while (s[i] && ft_isdigit(s[i]))
 	{
-		res = res * 10 + s[i] - '0';
+		res = res * 10 + (s[i] - '0');
 		if (res > INT_MAX)
-			handle_error(cafe, 2, INVALID);
+			return (-2);
 		i++;
 	}
 	return (res);
 }
 
-void	add_and_check_arguments(char **argv, t_data *cafe)
+int	add_and_check_arguments(char **argv, t_data *cafe)
 {
 	cafe->table = malloc(sizeof(t_common_data));
 	if (cafe->table == NULL)
-		handle_error(cafe, 1, MALLOC);
+		return (handle_error(cafe, 1, MALLOC));
 	if (argv[5])
-		cafe->table->n_meals = spec_atol(cafe, argv[5]);
+		cafe->table->n_meals = spec_atol(argv[5]);
 	else
 		cafe->table->n_meals = -1;
 	if (cafe->table->n_meals == 0)
-		handle_error(cafe, 2, NO_MEALS);
-	cafe->table->n_philos = spec_atol(cafe, argv[1]);
-	if (cafe->table->n_philos <= 0)
-		handle_error(cafe, 2, NO_PHILOS);
-	cafe->table->t_die = spec_atol(cafe, argv[2]) * 1e3;
-	cafe->table->t_eat = spec_atol(cafe, argv[3]) * 1e3;
-	cafe->table->t_sleep = spec_atol(cafe, argv[4]) * 1e3;
-	if (cafe->table->t_die < 60000
+		return (handle_error(cafe, 2, NO_MEALS));
+	else if (cafe->table->n_meals == -2)
+		return (handle_error(cafe, 2, INVALID));
+	cafe->table->n_philos = spec_atol(argv[1]);
+	if (cafe->table->n_philos == 0)
+		return (handle_error(cafe, 2, NO_PHILOS));
+	else if (cafe->table->n_philos < 0)
+		return (handle_error(cafe, 2, INVALID));
+	cafe->table->t_die = spec_atol(argv[2]) * 1e3;
+	cafe->table->t_eat = spec_atol(argv[3]) * 1e3;
+	cafe->table->t_sleep = spec_atol(argv[4]) * 1e3;
+	if (cafe->table->t_die < 0
+		|| cafe->table->t_eat < 0
+		|| cafe->table->t_sleep < 0)
+		return (handle_error(cafe, 2, INVALID));
+	else if (cafe->table->t_die < 60000
 		|| cafe->table->t_eat < 60000
 		|| cafe->table->t_sleep < 60000)
-		handle_error(cafe, 2, NO_TIME);
+		return (handle_error(cafe, 2, NO_TIME));
+	return (0);
 }

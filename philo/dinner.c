@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-void    run_simulation(t_data *cafe)
+int    run_simulation(t_data *cafe)
 {
         int     i;
 	long	philo_nbr;
@@ -23,7 +23,7 @@ void    run_simulation(t_data *cafe)
         if (cafe->table->n_philos == 1)
 	{
 		if (pthread_create(&cafe->all_philos[0].philo_acting, NULL, run_alone, &cafe->all_philos[0]))
-			handle_error(cafe, 4, THREAD);
+			return (handle_error(cafe, 4, THREAD));
 	}
 	else
         {
@@ -31,30 +31,37 @@ void    run_simulation(t_data *cafe)
 		{
 			if (pthread_create(&cafe->all_philos[i].philo_acting, NULL,
                         dinner, &cafe->all_philos[i]))
-				handle_error(cafe, 4, THREAD);
+				return (handle_error(cafe, 4, THREAD));
 		}
         }
 	if (set_long(&cafe->table->lock, &cafe->table->t_start, get_time()) == -1
 		|| set_long(&cafe->table->lock, &cafe->table->all_ready, 1) == -1)
-		handle_error(cafe, 4, MUTEX);
+		return (handle_error(cafe, 4, MUTEX));
 	threading(&cafe->waiter, CREATE, serving, cafe);
 	i = -1;
 	philo_nbr = get_long(&cafe->table->lock, &cafe->table->n_philos);
 	if (philo_nbr == -1)
-		handle_error(cafe, 4, MUTEX);
+		return (handle_error(cafe, 4, MUTEX));
 	while (++i < philo_nbr)
 	{
 		pthread_join(cafe->all_philos[i].philo_acting, (void *)&check);
 		if (*(int *)check)
 		{
 			free(check);
-			handle_error(cafe, 4, THREAD);
+			return (handle_error(cafe, 4, THREAD));
 		}
 		free(check);
 	}
 	if (set_long(&cafe->table->lock, &cafe->table->dinner_is_over, 1) == -1)
-		handle_error(cafe, 4, MUTEX);
-        pthread_join(cafe->waiter, NULL);
+		return (handle_error(cafe, 4, MUTEX));
+        pthread_join(cafe->waiter, (void *)&check);
+	if (*(int *)check)
+	{
+		free(check);
+		return (handle_error(cafe, 4, THREAD));
+	}
+	free(check);
+	return (0);
 }
 
 void	*run_alone(void *arg)
@@ -70,6 +77,8 @@ void	*run_alone(void *arg)
 	if (mutex_handler(&philo->philo_lock, LOCK))
 		return (check);
 	philo->t_last_meal = get_time();
+	if (philo->t_last_meal == -777)
+		return (check);
 	if (mutex_handler(&philo->philo_lock, UNLOCK))
 		return (check);
 	if (mutex_handler(&philo->table->lock, LOCK))
@@ -185,7 +194,8 @@ void	*dinner(void *arg)
 	{
 		if (philo->full)
 			break ;
-		eating_phase(philo);
+		if (eating_phase(philo))
+			return (check);
 		if (printing_status(philo, SLEEP))
 			return (check);
 		if (precise_usleep(philo->table->t_sleep, philo->table))
@@ -208,9 +218,12 @@ void    *serving(void *arg)
 {
         t_data  *cafe;
 	int	iter;
-	int	i;	
+	int	i;
+	int	*check;	
 
        	cafe = (t_data *)arg;
+	check = malloc(4);
+	*check = 1;
 	while (all_running(cafe->table) != 1)
 		;
 	iter = cafe->table->n_philos;
@@ -222,10 +235,16 @@ void    *serving(void *arg)
 			if (cafe->all_philos[i].rip)
 			{
 				if (mutex_handler(&cafe->table->lock, LOCK))
+				{
 					handle_error(cafe, 4, MUTEX);
+					return (check);
+				}
 				cafe->table->dinner_is_over = true;
 				if (mutex_handler(&cafe->table->lock, UNLOCK))
+				{
 					handle_error(cafe, 4, MUTEX);
+					return (check);
+				}
 				return (NULL);
 			}
 			else if (!cafe->all_philos[i].allowed_to_eat)
@@ -237,19 +256,31 @@ void    *serving(void *arg)
 				if (!iter)
 				{
 					if (mutex_handler(&cafe->table->lock, LOCK))
+					{
 						handle_error(cafe, 4, MUTEX);
+						return (check);
+					}
 					cafe->table->dinner_is_over = true;
 					if (mutex_handler(&cafe->table->lock, UNLOCK))
+					{
 						handle_error(cafe, 4, MUTEX);
+						return (check);
+					}
 					return (NULL);
 				}
 			}
 		}
 	}
 	if (mutex_handler(&cafe->table->lock, LOCK))
+	{
 		handle_error(cafe, 4, MUTEX);
+		return (check);
+	}
 	cafe->table->dinner_is_over = true;
 	if (mutex_handler(&cafe->table->lock, UNLOCK))
+	{
 		handle_error(cafe, 4, MUTEX);
+		return (check);
+	}
 	return (NULL);
 }

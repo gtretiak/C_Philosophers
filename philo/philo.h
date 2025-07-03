@@ -104,16 +104,16 @@ typedef enum e_code
  * pthread_mutex_lock, pthread_mutex_unlock
  * */
 
-void	init(t_data *cafe);
-void	add_and_check_arguments(char **argv, t_data *cafe);
+int		init(t_data *cafe);
+int		add_and_check_arguments(char **argv, t_data *cafe);
 int		eating_phase(t_philo *philo);
 
 void	*dinner(void *arg);
 void	*serving(void *arg);
-void	run_simulation(t_data *cafe);
+int		run_simulation(t_data *cafe);
 void	*run_alone(void *arg);
 
-void	handle_error(t_data *cafe, int code, char *msg);
+int		handle_error(t_data *cafe, int code, char *msg);
 void	cleanup(t_data *cafe, int code);
 void	threading(pthread_t *th, t_code code, void *(*f)(void *), t_data *cafe);
 int		mutex_handler(pthread_mutex_t *mutex, t_code code);

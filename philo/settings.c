@@ -55,31 +55,32 @@ static void	setup_common(t_data *cafe)
 	cafe->table->running_threads = 0;
 }
 
-void	init(t_data *cafe)
+int	init(t_data *cafe)
 {
 	int	i;
 
 	i = -1;
 	cafe->all_philos = malloc(cafe->table->n_philos * sizeof(t_philo));
 	if (cafe->all_philos == NULL)
-		handle_error(cafe, 2, MALLOC);
+		return (handle_error(cafe, 2, MALLOC));
 	cafe->all_forks = malloc(cafe->table->n_philos * sizeof(t_fork));
 	if (cafe->all_forks == NULL)
-		handle_error(cafe, 3, MALLOC);
+		return (handle_error(cafe, 3, MALLOC));
 	setup_common(cafe);
 	while (++i < cafe->table->n_philos)
 	{
 		setup_private(cafe, i);
 		if (mutex_handler(&cafe->all_forks[i].mtx, INIT))
-			handle_error(cafe, 4, MUTEX);
+			return (handle_error(cafe, 4, MUTEX));
 		if (mutex_handler(&cafe->all_philos[i].philo_lock, INIT))
-			handle_error(cafe, 4, MUTEX);
+			return (handle_error(cafe, 4, MUTEX));
 		assign_forks(&cafe->all_philos[i], cafe->all_forks,
 			i, cafe->table->n_philos);
 	}
 	cafe->table->all_ready = true;
 	if (mutex_handler(&cafe->table->lock, INIT))
-		handle_error(cafe, 4, MUTEX);
+		return (handle_error(cafe, 4, MUTEX));
 	if (mutex_handler(&cafe->table->print_lock, INIT))
-		handle_error(cafe, 4, MUTEX);
+		return (handle_error(cafe, 4, MUTEX));
+	return (0);
 }
