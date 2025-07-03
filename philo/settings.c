@@ -33,9 +33,9 @@ static void	assign_forks(t_philo *philo, t_fork *forks, int i, int n_philo)
 		philo->second_fork = &forks[right_fork];
 		philo->second_fork->index = right_fork;
 	}
-	printf("The %lu philo should always take "
+/*	printf("The %lu philo should always take "
 		"%d (first) fork and %d (second) fork\n",
-		philo->position, philo->first_fork->index, philo->second_fork->index);
+		philo->position, philo->first_fork->index, philo->second_fork->index);*/
 }
 
 static void	setup_private(t_data *cafe, int i)

@@ -192,13 +192,6 @@ void	*dinner(void *arg)
 		return (check);
 	while (!philo->table->dinner_is_over)
 	{
-		if (eating_phase(philo))
-			return (check);
-		if (printing_status(philo, SLEEP))
-			return (check);
-		if (precise_usleep(philo->table->t_sleep, philo->table))
-			return (check);
-		t_curr = get_time();
 		if (philo->table->t_die < t_curr - philo->t_last_meal)
 		{
 			philo->rip = true; // check and displaying within 10ms of actual death TODO
@@ -207,6 +200,13 @@ void	*dinner(void *arg)
 			free(check);
 			return (NULL);
 		}
+		if (eating_phase(philo))
+			return (check);
+		if (printing_status(philo, SLEEP))
+			return (check);
+		if (precise_usleep(philo->table->t_sleep, philo->table))
+			return (check);
+		t_curr = get_time();
 	}
 	free(check);
 	return (NULL);
