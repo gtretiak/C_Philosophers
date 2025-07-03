@@ -78,7 +78,7 @@ int	init(t_data *cafe)
 		assign_forks(&cafe->all_philos[i], cafe->all_forks,
 			i, cafe->table->n_philos);
 	}
-	cafe->table->all_ready = true;
+	cafe->table->all_ready = 1;
 	if (mutex_handler(&cafe->table->lock, INIT))
 		return (handle_error(cafe, 4, MUTEX));
 	if (mutex_handler(&cafe->table->print_lock, INIT))

@@ -165,7 +165,7 @@ int	eating_phase(t_philo *philo)
 		{
 			if (mutex_handler(&philo->philo_lock, LOCK))
 				return (1);
-			philo->full = true;
+			philo->full = 1;
 			if (mutex_handler(&philo->philo_lock, UNLOCK))
 				return (1);
 		}
@@ -270,7 +270,7 @@ void    *serving(void *arg)
 		handle_error(cafe, 4, MUTEX);
 		return (check);
 	}
-	cafe->table->dinner_is_over = true;
+	cafe->table->dinner_is_over = 1;
 	if (mutex_handler(&cafe->table->lock, UNLOCK))
 	{
 		handle_error(cafe, 4, MUTEX);
