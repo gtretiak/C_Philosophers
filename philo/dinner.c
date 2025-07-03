@@ -37,7 +37,8 @@ int    run_simulation(t_data *cafe)
 	if (set_long(&cafe->table->lock, &cafe->table->t_start, get_time()) == -1
 		|| set_long(&cafe->table->lock, &cafe->table->all_ready, 1) == -1)
 		return (handle_error(cafe, 4, MUTEX));
-	threading(&cafe->waiter, CREATE, serving, cafe);
+	if (pthread_create(&cafe->waiter, NULL, serving, &cafe))
+		return (handle_error(cafe, 4, THREAD));
 	i = -1;
 	philo_nbr = get_long(&cafe->table->lock, &cafe->table->n_philos);
 	if (philo_nbr == -1)

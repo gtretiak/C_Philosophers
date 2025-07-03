@@ -116,7 +116,6 @@ void	*run_alone(void *arg);
 
 int		handle_error(t_data *cafe, int code, char *msg);
 void	cleanup(t_data *cafe, int code);
-void	threading(pthread_t *th, t_code code, void *(*f)(void *), t_data *cafe);
 int		mutex_handler(pthread_mutex_t *mutex, t_code code);
 
 int		wait_others(t_philo *philo);

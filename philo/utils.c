@@ -53,7 +53,7 @@ long	get_time(void)
 	if (gettimeofday(&time, NULL))
 	{
 		printf("Error: gettimeofday failed.\n");
-		return(-777);
+		return(-666);
 	}
 	return (time.tv_sec * 1e3 + time.tv_usec / 1e3);
 }
@@ -66,7 +66,7 @@ int	precise_usleep(long duration, t_common_data *table)
 	long	dinner;
 
 	start = get_time();
-	if (start == -777)
+	if (start < 0)
 		return (1);
 	while (get_time() - start < duration)
 	{

@@ -50,19 +50,6 @@ void	cleanup(t_data *cafe, int code)
 	}
 }
 
-void	threading(pthread_t *th, t_code code, void *(*f)(void *), t_data *cafe)
-{
-	int	status;
-
-	status = 0;
-	if (code == CREATE)
-		status = pthread_create(th, NULL, f, cafe);
-	else if (code == JOIN)
-		status = pthread_join(*th, NULL);
-	if (status && cafe)
-		handle_error(cafe, 4, THREAD);
-}
-
 int	mutex_handler(pthread_mutex_t *mutex, t_code code)
 {
 	if (code == INIT)
