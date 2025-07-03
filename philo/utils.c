@@ -107,7 +107,11 @@ int	printing_status(t_philo *philo, char *msg)
 		time = get_time() - start;
 		if (time < 0)
 			return (1);
+		if (mutex_handler(&philo->table->print_lock, LOCK))
+			return (1);
 		printf("%lu %lu %s", time, pos, msg);
+		if (mutex_handler(&philo->table->print_lock, UNLOCK))
+			return (1);
 	}
 	return (0);
 }

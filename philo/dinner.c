@@ -89,7 +89,7 @@ void	*run_alone(void *arg)
 		return (check);
 	if (printing_status(philo, FORK))
 		return (check);
-	while(!philo->table->dinner_is_over)
+	while(!get_long(&philo->table->lock, &philo->table->dinner_is_over))
 		usleep(200);
 	free(check);
 	return (NULL);
@@ -98,10 +98,14 @@ void	*run_alone(void *arg)
 int	thinking_phase(t_philo *philo)
 {
 	long	t_think;
+	long	philos_nbr;
 
 	if (printing_status(philo, THINK))
 		return (1);
-	if (philo->table->n_philos % 2 == 0)
+	philos_nbr = get_long(&philo->table->lock, &philo->table->n_philos);
+	if (philos_nbr == -1)
+		return (1);
+	if (philos_nbr % 2 == 0)
 		return (0);
 	t_think = philo->table->t_eat * 2 - philo->table->t_sleep;
 	if (t_think < 0)
