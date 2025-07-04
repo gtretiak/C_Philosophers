@@ -65,8 +65,8 @@ typedef struct s_philo
 	long		position;
 	long		meals_eaten;
 	long		t_last_meal;
-	bool		allowed_to_eat; //or ready to eat as a signal to the waiter?
-				//priority for the waiter? OR for immediate exit if not allowed 
+//	bool		allowed_to_eat; //or ready to eat as a signal to the waiter?
+//				//priority for the waiter? OR for immediate exit if not allowed 
 	bool		rip;
 	bool		full;
 	t_common_data		*table;

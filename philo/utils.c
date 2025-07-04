@@ -21,7 +21,7 @@ int	wait_others(t_philo *philo)
 		check = get_long(&philo->table->lock, &philo->table->all_ready);
 		if (check == 1)
 			break ;
-		else if (check == -1)
+		else if (check == -2)
 			return (1);
 	}
 	return (0);
@@ -34,10 +34,10 @@ int	all_running(t_common_data *table)
 	long	n_threads;
 
 	philo_nbr = get_long(&table->lock, &table->n_philos);
-	if (philo_nbr == -1)
+	if (philo_nbr == -2)
 		return (-1);
 	n_threads = get_long(&table->lock, &table->running_threads);
-	if (n_threads == -1)
+	if (n_threads == -2)
 		return (-1);
 	if (n_threads == philo_nbr)
 		ret = 1;
@@ -71,7 +71,7 @@ int	precise_usleep(long duration, t_common_data *table)
 	while (get_time() - start < duration)
 	{
 		dinner = get_long(&table->lock, &table->dinner_is_over);
-		if (dinner == -1)
+		if (dinner == -2)
 			return (1);
 		if (dinner == 1)
 			break ;
@@ -100,7 +100,7 @@ int	printing_status(t_philo *philo, char *msg)
 	dinner = get_long(&philo->table->lock, &philo->table->dinner_is_over);
 	start = get_long(&philo->table->lock, &philo->table->t_start);
 	pos = get_long(&philo->philo_lock, &philo->position);
-	if (dinner == -1 || start == -1 || pos == -1)
+	if (dinner == -2 || start == -2 || pos == -2)
 		return (1);
 	if (dinner == 0)
 	{

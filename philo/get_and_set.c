@@ -17,10 +17,10 @@ long	get_long(pthread_mutex_t *mutex, long *value)
 	long	ret;
 
 	if (*value == -777 || mutex_handler(mutex, LOCK))
-		return (-1);
+		return (-2);
 	ret = *value;
 	if (mutex_handler(mutex, UNLOCK))
-		return (-1);
+		return (-2);
 	return (ret);
 }
 

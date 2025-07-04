@@ -45,7 +45,7 @@ static void	setup_private(t_data *cafe, int i)
 	cafe->all_philos[i].meals_eaten = 0;
 	cafe->all_philos[i].full = false;
 	cafe->all_philos[i].table = cafe->table;
-	cafe->all_philos[i].allowed_to_eat = true;
+//	cafe->all_philos[i].allowed_to_eat = true;
 }
 
 static void	setup_common(t_data *cafe)
