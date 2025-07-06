@@ -68,7 +68,7 @@ typedef struct s_philo
 //	bool		allowed_to_eat; //or ready to eat as a signal to the waiter?
 //				//priority for the waiter? OR for immediate exit if not allowed 
 	bool		rip;
-	bool		full;
+	long			full;
 	t_common_data		*table;
 	t_fork			*first_fork;
 	t_fork			*second_fork;
@@ -92,6 +92,12 @@ typedef enum e_code
 	CREATE,
 	JOIN
 }	t_code;
+
+typedef enum e_time
+{
+	MICRO,
+	MILI
+}	t_time;
 /*
  * memset - to set a memory chunk with value
  * printf, write
@@ -121,10 +127,11 @@ int		mutex_handler(pthread_mutex_t *mutex, t_code code);
 
 int		wait_others(t_philo *philo);
 int		all_running(t_common_data *table);
-long	get_time(void);
+long	get_time(t_time time);
 int		precise_usleep(long sleeping_time, t_common_data *table);
 int		printing_status(t_philo *philo, char *msg);
 
+long	increase_long(pthread_mutex_t *mutex, long *value);
 long	get_long(pthread_mutex_t *mutex, long *value);
 int		set_long(pthread_mutex_t *mutex, long *var, long value);
 

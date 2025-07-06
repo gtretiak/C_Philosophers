@@ -16,7 +16,7 @@ int    run_simulation(t_data *cafe)
 {
         int     i;
 	long	philo_nbr;
-	long	the_end;
+	void	*ret;
 
         i = -1;
         philo_nbr = get_long(&cafe->table->lock, &cafe->table->n_philos);
@@ -36,19 +36,23 @@ int    run_simulation(t_data *cafe)
 				return (handle_error(cafe, 5, THREAD));
 		}
         }
-	if (set_long(&cafe->table->lock, &cafe->table->t_start, get_time()) == -1
-		|| set_long(&cafe->table->lock, &cafe->table->all_ready, 1) == -1)
-		return (handle_error(cafe, 5, MUTEX));
 	if (pthread_create(&cafe->waiter, NULL, serving, &cafe))
 		return (handle_error(cafe, 5, THREAD));
-	while (1)
+	if (set_long(&cafe->table->lock, &cafe->table->t_start, get_time(MILI))
+	|| set_long(&cafe->table->lock, &cafe->table->all_ready, 1))
+		return (handle_error(cafe, 5, MUTEX));
+	i = -1;
+	while (++i < philo_nbr)
 	{
-		the_end = get_long(&cafe->table->lock, &cafe->table->dinner_is_over);
-		if (the_end == -2)
-			return (handle_error(cafe, 5, MUTEX));
-		else if (the_end == 1)
-			break ;
+		pthread_join(cafe->all_philos[i].philo_acting, (void *)&ret);
+		if (ret != (void *)0)
+			return (handle_error(cafe, 5, THREAD));
 	}
+	if (set_long(&cafe->table->lock, &cafe->table->dinner_is_over, 1))
+		return (handle_error(cafe, 5, MUTEX));
+	pthread_join(cafe->waiter, (void *)&ret);
+	if (ret != (void *)0)
+		return (handle_error(cafe, 5, THREAD));
 	return (0);
 }
 
@@ -61,20 +65,9 @@ void	*run_alone(void *arg)
 	philo = (t_philo *)arg;
 	if (wait_others(philo))
 		return ((void *)1);
-	if (mutex_handler(&philo->philo_lock, LOCK))
+	if (set_long(&philo->philo_lock, &philo->t_last_meal, get_time(MILI)))
 		return ((void *)1);
-	philo->t_last_meal = get_time();
-	if (philo->t_last_meal == -777)
-	{
-		mutex_handler(&philo->philo_lock, UNLOCK);
-		return ((void *)1);
-	}
-	if (mutex_handler(&philo->philo_lock, UNLOCK))
-		return ((void *)1);
-	if (mutex_handler(&philo->table->lock, LOCK))
-		return ((void *)1);
-	philo->table->running_threads++;
-	if (mutex_handler(&philo->table->lock, UNLOCK))
+	if (increase_long(&philo->table->lock, &philo->table->running_threads))
 		return ((void *)1);
 	if (printing_status(philo, FORK))
 		return ((void *)1);
@@ -85,7 +78,7 @@ void	*run_alone(void *arg)
 			return ((void *)1);
 		else if (the_end == 1)
 			break ;
-		t_curr = get_time();
+		t_curr = get_time(MILI);
 		if (t_curr < 0)
 			return ((void *)1);
 		if (get_long(&philo->table->lock, &philo->table->t_die) < t_curr - get_long(&philo->philo_lock, &philo->t_last_meal))
@@ -190,7 +183,7 @@ int	eating_phase(t_philo *philo)
 			mutex_handler(&philo->second_fork->mtx, UNLOCK);
 			return (1);
 		}
-		philo->t_last_meal = get_time();
+		philo->t_last_meal = get_time(MILI);
 		if (philo->t_last_meal == -666)
 		{
 			mutex_handler(&philo->philo_lock, UNLOCK);
@@ -210,7 +203,7 @@ int	eating_phase(t_philo *philo)
 			mutex_handler(&philo->second_fork->mtx, UNLOCK);
 			return (1);
 		}
-		if (precise_usleep(philo->table->t_eat, philo->table))
+		if (precise_usleep(philo->table->t_eat * 1e3, philo->table))
 		{
 			mutex_handler(&philo->first_fork->mtx, UNLOCK);
 			mutex_handler(&philo->second_fork->mtx, UNLOCK);
@@ -226,14 +219,13 @@ int	eating_phase(t_philo *philo)
 		meals_nbr = get_long(&philo->table->lock, &philo->table->n_meals);
 		if (meals_nbr == -2)
 			return (1);
-		if (mutex_handler(&philo->philo_lock, LOCK))
-			return (1);
 		if (meals_nbr != -1 
 			&& ++philo->meals_eaten >= meals_nbr)
-			philo->full = 1;
-		if (mutex_handler(&philo->philo_lock, UNLOCK))
-			return (1);
+		{	
+			if (set_long(&philo->philo_lock, &philo->full, 1))
+				return (1);
 		}
+	}
 	return (0);
 }
 
@@ -246,10 +238,9 @@ void	*dinner(void *arg)
 	philo = (t_philo *)arg;
 	if (wait_others(philo))
 		return ((void *)1);
-	if (mutex_handler(&philo->table->lock, LOCK))
+	if (set_long(&philo->table->lock, &philo->t_last_meal, get_time(MILI)))
 		return ((void *)1);
-	philo->table->running_threads++;
-	if (mutex_handler(&philo->table->lock, UNLOCK))
+	if (increase_long(&philo->table->lock, &philo->table->running_threads))
 		return ((void *)1);
 	if (think_about(philo))
 		return ((void *)1);
@@ -260,14 +251,16 @@ void	*dinner(void *arg)
 			return ((void *)1);
 		else if (temp == 1)
 			break ;
-		t_curr = get_time();
+		t_curr = get_time(MILI);
 		if (t_curr < 0)
 			return ((void *)1);
 		temp = get_long(&philo->table->lock, &philo->t_last_meal);
 		if (temp == -2)
 			return ((void *)1);
+		printf("Current time (ms):%ld\nLast meal:%ld\n", t_curr, temp);
 		t_curr -= temp;
 		temp = get_long(&philo->table->lock, &philo->table->t_die);
+		printf("Current - last meal:%ld\nTime to die:%ld\n", t_curr, temp);
 		if (temp == -2)
 			return ((void *)1);
 		if (temp < t_curr)
@@ -285,7 +278,7 @@ void	*dinner(void *arg)
 			return ((void *)1);
 		if (printing_status(philo, SLEEP))
 			return ((void *)1);
-		if (precise_usleep(philo->table->t_sleep, philo->table))
+		if (precise_usleep(philo->table->t_sleep * 1e3, philo->table))
 			return ((void *)1);
 	}
 	return ((void *)0);
@@ -336,13 +329,7 @@ void    *serving(void *arg)
 					handle_error(cafe, 4, MUTEX);
 					return ((void *)1);
 				}
-				if (mutex_handler(&cafe->table->lock, LOCK))
-				{
-					handle_error(cafe, 4, MUTEX);
-					return ((void *)1);
-				}
-				cafe->table->dinner_is_over = 1;
-				if (mutex_handler(&cafe->table->lock, UNLOCK))
+				if (set_long(&cafe->table->lock, &cafe->table->dinner_is_over, 1))
 				{
 					handle_error(cafe, 4, MUTEX);
 					return ((void *)1);

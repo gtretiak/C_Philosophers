@@ -27,9 +27,19 @@ long	get_long(pthread_mutex_t *mutex, long *value)
 int	set_long(pthread_mutex_t *mutex, long *var, long value)
 {
 	if (mutex_handler(mutex, LOCK))
-		return (-1);
+		return (1);
 	*var = value;
 	if (mutex_handler(mutex, UNLOCK))
-		return (-1);
+		return (1);
+	return (0);
+}
+
+long	increase_long(pthread_mutex_t *mutex, long *value)
+{
+	if (mutex_handler(mutex, LOCK))
+		return (2);
+	(*value)++;
+	if (mutex_handler(mutex, UNLOCK))
+		return (2);
 	return (0);
 }

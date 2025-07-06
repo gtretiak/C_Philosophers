@@ -46,16 +46,20 @@ int	all_running(t_common_data *table)
 	return (ret);
 }
 
-long	get_time(void)
+long	get_time(t_time time)
 {
-	struct timeval	time;
+	struct timeval	ts;
 
-	if (gettimeofday(&time, NULL))
+	if (gettimeofday(&ts, NULL))
 	{
 		printf("Error: gettimeofday failed.\n");
 		return(-666);
 	}
-	return (time.tv_sec * 1e3 + time.tv_usec / 1e3);
+	if (time == MICRO)
+		return (ts.tv_sec * 1e6 + ts.tv_usec);
+	else if (time == MILI)
+		return (ts.tv_sec * 1e3 + ts.tv_usec / 1e3);
+	return (42);
 }
 
 int	precise_usleep(long duration, t_common_data *table)
@@ -65,17 +69,17 @@ int	precise_usleep(long duration, t_common_data *table)
 	long	remainder;
 	long	dinner;
 
-	start = get_time();
+	start = get_time(MICRO);
 	if (start < 0)
 		return (1);
-	while (get_time() - start < duration)
+	while (get_time(MICRO) - start < duration)
 	{
 		dinner = get_long(&table->lock, &table->dinner_is_over);
 		if (dinner == -2)
 			return (1);
 		if (dinner == 1)
 			break ;
-		elapsed = get_time() - start;
+		elapsed = get_time(MICRO) - start;
 		if (elapsed < 0)
 			return (1);
 		remainder = duration - elapsed;
@@ -83,7 +87,7 @@ int	precise_usleep(long duration, t_common_data *table)
 			usleep(remainder / 2);
 		else
 		{
-			while (get_time() - start < duration)
+			while (get_time(MICRO) - start < duration)
 				;
 		}
 	}
@@ -104,12 +108,12 @@ int	printing_status(t_philo *philo, char *msg)
 		return (1);
 	if (dinner == 0)
 	{
-		time = get_time() - start;
+		time = get_time(MILI) - start;
 		if (time < 0)
 			return (1);
 		if (mutex_handler(&philo->table->print_lock, LOCK))
 			return (1);
-		printf("%lu %lu %s", time, pos, msg);
+		printf("%ld %ld %s", time, pos, msg);
 		if (mutex_handler(&philo->table->print_lock, UNLOCK))
 			return (1);
 	}

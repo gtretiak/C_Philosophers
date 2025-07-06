@@ -33,14 +33,8 @@ void	cleanup(t_data *cafe, int code)
 	{
 		if (code >= 3)
 		{
-			if (code == 4)
+			if (code >= 4)
 			{
-				if (code == 5)
-				{	while (++i < cafe->table->n_philos)
-						pthread_join(cafe->all_philos[i].philo_acting, NULL);
-					pthread_join(cafe->waiter, NULL);
-					i = -1;
-				}
 				while (++i < cafe->table->n_philos)
 				{
 					mutex_handler(&cafe->all_forks[i].mtx, DESTROY);

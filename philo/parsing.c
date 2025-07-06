@@ -67,16 +67,16 @@ int	add_and_check_arguments(char **argv, t_data *cafe)
 		return (handle_error(cafe, 2, NO_PHILOS));
 	else if (cafe->table->n_philos < 0)
 		return (handle_error(cafe, 2, INVALID));
-	cafe->table->t_die = spec_atol(argv[2]) * 1e3;
-	cafe->table->t_eat = spec_atol(argv[3]) * 1e3;
-	cafe->table->t_sleep = spec_atol(argv[4]) * 1e3;
+	cafe->table->t_die = spec_atol(argv[2]);
+	cafe->table->t_eat = spec_atol(argv[3]);
+	cafe->table->t_sleep = spec_atol(argv[4]);
 	if (cafe->table->t_die < 0
 		|| cafe->table->t_eat < 0
 		|| cafe->table->t_sleep < 0)
 		return (handle_error(cafe, 2, INVALID));
-	else if (cafe->table->t_die < 60000
-		|| cafe->table->t_eat < 60000
-		|| cafe->table->t_sleep < 60000)
+	else if (cafe->table->t_die < 60
+		|| cafe->table->t_eat < 60
+		|| cafe->table->t_sleep < 60)
 		return (handle_error(cafe, 2, NO_TIME));
 	return (0);
 }

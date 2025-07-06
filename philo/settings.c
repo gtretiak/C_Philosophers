@@ -43,7 +43,7 @@ static void	setup_private(t_data *cafe, int i)
 	cafe->all_philos[i].position = i + 1;
 	cafe->all_philos[i].rip = false;
 	cafe->all_philos[i].meals_eaten = 0;
-	cafe->all_philos[i].full = false;
+	cafe->all_philos[i].full = 0;
 	cafe->all_philos[i].table = cafe->table;
 	cafe->all_forks[i].index = i;
 }
