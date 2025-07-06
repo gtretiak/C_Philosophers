@@ -33,9 +33,6 @@ void	cleanup(t_data *cafe, int code)
 	{
 		if (code >= 3)
 		{
-			while (++i < cafe->table->n_philos)
-				pthread_join(cafe->all_philos[i].philo_acting, NULL);
-			pthread_join(cafe->waiter, NULL);
 			if (code == 4)
 			{
 				if (code == 5)
