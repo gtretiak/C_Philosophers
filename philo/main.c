@@ -17,21 +17,18 @@ int	main(int argc, char **argv)
 	t_data	cafe;
 	int	ret;
 
-	if (argc == 5 || argc == 6)
-	{
-		ret = add_and_check_arguments(argv, &cafe);
-		if (ret)
-			return (ret);
-		ret = init(&cafe);
-		if (ret)
-			return (ret);
-		ret = run_simulation(&cafe);
-		if (ret)
-			return (ret);
-		cleanup(&cafe, 4);
-	}
-	else
+	if (argc != 5 && argc != 6)
 		return (handle_error(&cafe, 1, ARGS));
+	ret = add_and_check_arguments(argv, &cafe);
+	if (ret)
+		return (ret);
+	ret = init(&cafe);
+	if (ret)
+		return (ret);
+	ret = run_simulation(&cafe);
+	if (ret)
+		return (ret);
+	cleanup(&cafe, 5);
 	return (0);
 }
 /*

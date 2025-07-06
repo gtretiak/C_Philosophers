@@ -45,11 +45,12 @@ static void	setup_private(t_data *cafe, int i)
 	cafe->all_philos[i].meals_eaten = 0;
 	cafe->all_philos[i].full = false;
 	cafe->all_philos[i].table = cafe->table;
-//	cafe->all_philos[i].allowed_to_eat = true;
+	cafe->all_forks[i].index = i;
 }
 
 static void	setup_common(t_data *cafe)
 {
+	mutex_handler(&cafe->common_lock, INIT);
 	cafe->table->dinner_is_over = 0;
 	cafe->table->all_ready = 0;
 	cafe->table->running_threads = 0;
@@ -78,7 +79,6 @@ int	init(t_data *cafe)
 		assign_forks(&cafe->all_philos[i], cafe->all_forks,
 			i, cafe->table->n_philos);
 	}
-	cafe->table->all_ready = 1;
 	if (mutex_handler(&cafe->table->lock, INIT))
 		return (handle_error(cafe, 4, MUTEX));
 	if (mutex_handler(&cafe->table->print_lock, INIT))

@@ -76,6 +76,7 @@ typedef struct s_philo
 
 typedef struct s_data
 {
+	pthread_mutex_t	common_lock;
 	t_common_data	*table;
 	t_fork			*all_forks;
 	t_philo			*all_philos;
