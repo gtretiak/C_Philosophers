@@ -134,5 +134,5 @@ int		printing_status(t_philo *philo, char *msg);
 long	increase_long(pthread_mutex_t *mutex, long *value);
 long	get_long(pthread_mutex_t *mutex, long *value);
 int		set_long(pthread_mutex_t *mutex, long *var, long value);
-
+int		set_bool(pthread_mutex_t *mutex, bool *var, bool value);
 #endif

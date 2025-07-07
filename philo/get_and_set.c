@@ -34,6 +34,16 @@ int	set_long(pthread_mutex_t *mutex, long *var, long value)
 	return (0);
 }
 
+int	set_bool(pthread_mutex_t *mutex, bool *var, bool value)
+{
+	if (mutex_handler(mutex, LOCK))
+		return (1);
+	*var = value;
+	if (mutex_handler(mutex, UNLOCK))
+		return (1);
+	return (0);
+}
+
 long	increase_long(pthread_mutex_t *mutex, long *value)
 {
 	if (mutex_handler(mutex, LOCK))

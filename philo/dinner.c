@@ -71,7 +71,7 @@ void	*run_alone(void *arg)
 		return ((void *)1);
 	if (printing_status(philo, FORK))
 		return ((void *)1);
-	while(1)
+	while (1)
 	{
 		the_end = get_long(&philo->table->lock, &philo->table->dinner_is_over);
 		if (the_end == -2)
@@ -83,16 +83,13 @@ void	*run_alone(void *arg)
 			return ((void *)1);
 		if (get_long(&philo->table->lock, &philo->table->t_die) <= t_curr - get_long(&philo->philo_lock, &philo->t_last_meal))
 		{
-			if (mutex_handler(&philo->philo_lock, LOCK))
+			if (set_bool(&philo->philo_lock, &philo->rip, true))
 				return ((void *)1);
-			philo->rip = true; // check and displaying within 10ms of actual death TODO
-			if (mutex_handler(&philo->philo_lock, UNLOCK))
-				return ((void *)1);
+			// check and displaying within 10ms of actual death TODO
 			if (printing_status(philo, DIE))
 				return ((void *)1);
 			return ((void *)0);
 		}
-		usleep(1000);
 	}
 	return ((void *)0);
 }
@@ -239,7 +236,7 @@ void	*dinner(void *arg)
 	philo = (t_philo *)arg;
 	if (wait_others(philo))
 		return ((void *)1);
-	if (set_long(&philo->table->lock, &philo->t_last_meal, get_time(MILI)))
+	if (set_long(&philo->philo_lock, &philo->t_last_meal, get_time(MILI)))
 		return ((void *)1);
 	if (increase_long(&philo->table->lock, &philo->table->running_threads))
 		return ((void *)1);
@@ -255,7 +252,7 @@ void	*dinner(void *arg)
 		t_curr = get_time(MILI);
 		if (t_curr < 0)
 			return ((void *)1);
-		temp = get_long(&philo->table->lock, &philo->t_last_meal);
+		temp = get_long(&philo->philo_lock, &philo->t_last_meal);
 		if (temp == -2)
 			return ((void *)1);
 		printf("Current time (ms):%ld\nLast meal:%ld\n", t_curr, temp);
@@ -266,11 +263,9 @@ void	*dinner(void *arg)
 			return ((void *)1);
 		if (temp < t_curr)
 		{
-			if (mutex_handler(&philo->table->lock, LOCK))
+			if (set_bool(&philo->table->lock, &philo->rip, true))
 				return ((void *)1);
-			philo->rip = true; // check and displaying within 10ms of actual death TODO
-			if (mutex_handler(&philo->table->lock, UNLOCK))
-				return ((void *)1);
+			// check and displaying within 10ms of actual death TODO
 			if (printing_status(philo, DIE))
 				return ((void *)1);
 			return ((void *)0);
@@ -339,6 +334,11 @@ void    *serving(void *arg)
 			}
 			else if (cafe->all_philos[i].full)
 			{
+				if (mutex_handler(&cafe->all_philos[i].philo_lock, UNLOCK))
+				{
+					handle_error(cafe, 4, MUTEX);
+					return ((void *)1);
+				}
 				if (mutex_handler(&cafe->table->lock, LOCK))
 				{
 					handle_error(cafe, 4, MUTEX);
@@ -354,6 +354,11 @@ void    *serving(void *arg)
 					handle_error(cafe, 4, MUTEX);
 					return ((void *)1);
 				}
+			}
+			if (mutex_handler(&cafe->all_philos[i].philo_lock, UNLOCK))
+			{
+				handle_error(cafe, 4, MUTEX);
+				return ((void *)1);
 			}
 			if (mutex_handler(&cafe->common_lock, UNLOCK))
 			{

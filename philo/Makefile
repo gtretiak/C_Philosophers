@@ -2,6 +2,7 @@ NAME = philo
 HEADER = philo.h
 CFLAGS = -Wall -Wextra -Werror
 SPECFLAG = -pthread
+SPECFLAG2 = -fsanitize=thread
 SRCS = main.c free_and_errors.c settings.c parsing.c dinner.c utils.c get_and_set.c
 DIR = ./
 OBJS = $(addprefix $(DIR), $(SRCS:.c=.o))
@@ -18,7 +19,7 @@ $(DIR)%.o: $(DIR)%.c $(HEADER)
 
 $(NAME): $(OBJS)
 	@echo "Linking object files into the final executable...";
-	@cc $(OBJS) -o $@ $(SPECFLAG)
+	@cc $(OBJS) -o $@ $(SPECFLAG) 
 	@echo "Done.\n\n\n";
 	@echo "Welcome to the \"🇬 🇷 🇪 🇪 🇨 🇪 "\
 	"\" cafe!\n"\
