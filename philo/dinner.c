@@ -81,7 +81,7 @@ void	*run_alone(void *arg)
 		t_curr = get_time(MILI);
 		if (t_curr < 0)
 			return ((void *)1);
-		if (get_long(&philo->table->lock, &philo->table->t_die) < t_curr - get_long(&philo->philo_lock, &philo->t_last_meal))
+		if (get_long(&philo->table->lock, &philo->table->t_die) <= t_curr - get_long(&philo->philo_lock, &philo->t_last_meal))
 		{
 			if (mutex_handler(&philo->philo_lock, LOCK))
 				return ((void *)1);
@@ -92,6 +92,7 @@ void	*run_alone(void *arg)
 				return ((void *)1);
 			return ((void *)0);
 		}
+		usleep(1000);
 	}
 	return ((void *)0);
 }
