@@ -17,7 +17,7 @@ long	get_long(pthread_mutex_t *mutex, long *value)
 	long	ret;
 
 	if (*value == -777 || mutex_handler(mutex, LOCK))
-		ret = -2;
+		return (-2);
 	else
 		ret = *value;
 	if (mutex_handler(mutex, UNLOCK))
@@ -30,7 +30,7 @@ int	set_long(pthread_mutex_t *mutex, long *var, long value)
 	int	ret;
 
 	if (mutex_handler(mutex, LOCK))
-		ret = 1;
+		return (1);
 	else
 	{
 		*var = value;
@@ -46,7 +46,7 @@ int	set_bool(pthread_mutex_t *mutex, bool *var, bool value)
 	int	ret;
 
 	if (mutex_handler(mutex, LOCK))
-		ret = 1;
+		return (1);
 	else
 	{
 		*var = value;
@@ -59,9 +59,10 @@ int	set_bool(pthread_mutex_t *mutex, bool *var, bool value)
 
 long	increase_long(pthread_mutex_t *mutex, long *value)
 {
+	printf("Increase long is called\n");
 	long	ret;
 	if (mutex_handler(mutex, LOCK))
-		ret = 2;
+		return (2);
 	else
 	{
 		(*value)++;

@@ -38,7 +38,9 @@ void	cleanup(t_data *cafe, int code)
 				while (++i < cafe->table->n_philos)
 				{
 					mutex_handler(&cafe->all_forks[i].mtx, DESTROY);
+					printf("Thread fork %d exiting\n", i);
 					mutex_handler(&cafe->all_philos[i].philo_lock, DESTROY);
+					printf("Thread philo %d exiting\n", i);
 				}
 				mutex_handler(&cafe->table->lock, DESTROY);
 				mutex_handler(&cafe->table->print_lock, DESTROY);

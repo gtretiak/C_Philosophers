@@ -43,6 +43,8 @@ int	all_running(t_common_data *table)
 		ret = 1;
 	else
 		ret = 0;
+	printf("num of threads running: %ld\nphilo_nbr: %ld\n", n_threads, philo_nbr);
+	fflush(stdout);
 	return (ret);
 }
 
