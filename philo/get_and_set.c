@@ -17,39 +17,57 @@ long	get_long(pthread_mutex_t *mutex, long *value)
 	long	ret;
 
 	if (*value == -777 || mutex_handler(mutex, LOCK))
-		return (-2);
-	ret = *value;
+		ret = -2;
+	else
+		ret = *value;
 	if (mutex_handler(mutex, UNLOCK))
-		return (-2);
+		ret = -2;
 	return (ret);
 }
 
 int	set_long(pthread_mutex_t *mutex, long *var, long value)
 {
+	int	ret;
+
 	if (mutex_handler(mutex, LOCK))
-		return (1);
-	*var = value;
+		ret = 1;
+	else
+	{
+		*var = value;
+		ret = 0;
+	}
 	if (mutex_handler(mutex, UNLOCK))
-		return (1);
-	return (0);
+		ret = 1;
+	return (ret);
 }
 
 int	set_bool(pthread_mutex_t *mutex, bool *var, bool value)
 {
+	int	ret;
+
 	if (mutex_handler(mutex, LOCK))
-		return (1);
-	*var = value;
+		ret = 1;
+	else
+	{
+		*var = value;
+		ret = 0;
+	}
 	if (mutex_handler(mutex, UNLOCK))
-		return (1);
-	return (0);
+		ret = 1;
+	return (ret);
 }
 
 long	increase_long(pthread_mutex_t *mutex, long *value)
 {
+	long	ret;
 	if (mutex_handler(mutex, LOCK))
-		return (2);
-	(*value)++;
+		ret = 2;
+	else
+	{
+		(*value)++;
+		ret = 0;
+	}
 	if (mutex_handler(mutex, UNLOCK))
-		return (2);
-	return (0);
+		ret = 2;
+	return (ret);
 }
