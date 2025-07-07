@@ -41,6 +41,9 @@ int    run_simulation(t_data *cafe)
 	if (set_long(&cafe->table->lock, &cafe->table->t_start, get_time(MILI))
 	|| set_long(&cafe->table->lock, &cafe->table->all_ready, 1))
 		return (handle_error(cafe, 5, MUTEX));
+	pthread_join(cafe->waiter, (void *)&ret);
+	if (ret != (void *)0)
+		return (handle_error(cafe, 5, THREAD));
 	if (philo_nbr == 1)
 	{
 		pthread_join(cafe->all_philos[0].philo_acting, (void *)&ret);
@@ -57,11 +60,11 @@ int    run_simulation(t_data *cafe)
 				return (handle_error(cafe, 5, THREAD));
 		}
 	}
-	if (set_long(&cafe->table->lock, &cafe->table->dinner_is_over, 1))
-		return (handle_error(cafe, 5, MUTEX));
-	pthread_join(cafe->waiter, (void *)&ret);
-	if (ret != (void *)0)
-		return (handle_error(cafe, 5, THREAD));
+	//pthread_join(cafe->waiter, (void *)&ret);
+	//if (set_long(&cafe->table->lock, &cafe->table->dinner_is_over, 1))
+	//	return (handle_error(cafe, 5, MUTEX));
+	//if (ret != (void *)0)
+	//	return (handle_error(cafe, 5, THREAD));
 	return (0);
 }
 
@@ -321,11 +324,13 @@ void    *serving(void *arg)
 			{
 				if (mutex_handler(&cafe->all_philos[i].philo_lock, UNLOCK))
 				{
+					mutex_handler(&cafe->common_lock, UNLOCK);
 					handle_error(cafe, 4, MUTEX);
 					return ((void *)1);
 				}
 				if (set_long(&cafe->table->lock, &cafe->table->dinner_is_over, 1))
 				{
+					mutex_handler(&cafe->common_lock, UNLOCK);
 					handle_error(cafe, 4, MUTEX);
 					return ((void *)1);
 				}
@@ -335,11 +340,13 @@ void    *serving(void *arg)
 			{
 				if (mutex_handler(&cafe->all_philos[i].philo_lock, UNLOCK))
 				{
+					mutex_handler(&cafe->common_lock, UNLOCK);
 					handle_error(cafe, 4, MUTEX);
 					return ((void *)1);
 				}
 				if (mutex_handler(&cafe->table->lock, LOCK))
 				{
+					mutex_handler(&cafe->common_lock, UNLOCK);
 					handle_error(cafe, 4, MUTEX);
 					return ((void *)1);
 				}
@@ -348,6 +355,7 @@ void    *serving(void *arg)
 					cafe->table->dinner_is_over = 1;
 					if (mutex_handler(&cafe->table->lock, UNLOCK))
 					{
+						mutex_handler(&cafe->common_lock, UNLOCK);
 						handle_error(cafe, 4, MUTEX);
 						return ((void *)1);
 					}
@@ -355,12 +363,14 @@ void    *serving(void *arg)
 				}
 				if (mutex_handler(&cafe->table->lock, UNLOCK))
 				{
+					mutex_handler(&cafe->common_lock, UNLOCK);
 					handle_error(cafe, 4, MUTEX);
 					return ((void *)1);
 				}
 			}
 			if (mutex_handler(&cafe->all_philos[i].philo_lock, UNLOCK))
 			{
+				mutex_handler(&cafe->common_lock, UNLOCK);
 				handle_error(cafe, 4, MUTEX);
 				return ((void *)1);
 			}
