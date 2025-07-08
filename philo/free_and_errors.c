@@ -20,11 +20,14 @@ int	handle_error(t_data *cafe, int code, char *msg)
 	while (msg[++i])
 		write(2, &msg[i], 1);
 	if (code > 1)
-		cleanup(cafe, code);
+	{
+		if (cleanup(cafe, code))
+			return (handle_error(cafe, 1, MUTEX));
+	}
 	return(code);
 }
 
-void	cleanup(t_data *cafe, int code)
+int	cleanup(t_data *cafe, int code)
 {
 	int	i;
 
@@ -37,20 +40,18 @@ void	cleanup(t_data *cafe, int code)
 			{
 				while (++i < cafe->table->n_philos)
 				{
-					mutex_handler(&cafe->all_forks[i].mtx, DESTROY);
-					printf("Thread fork %d exiting\n", i);
-					mutex_handler(&cafe->all_philos[i].philo_lock, DESTROY);
-					printf("Thread philo %d exiting\n", i);
+					if (mutex_handler(&cafe->all_forks[i].lock, DESTROY) || mutex_handler(&cafe->all_philos[i].lock, DESTROY))
+						return (1);
 				}
-				mutex_handler(&cafe->table->lock, DESTROY);
-				mutex_handler(&cafe->table->print_lock, DESTROY);
-				mutex_handler(&cafe->common_lock, DESTROY);
+				if (mutex_handler(&cafe->table->lock, DESTROY) || mutex_handler(&cafe->table->print_lock, DESTROY))
+					return (1);
 				free(cafe->all_forks);
 			}
 			free(cafe->all_philos);
 		}
 		free(cafe->table);
 	}
+	return (0);
 }
 
 int	mutex_handler(pthread_mutex_t *mutex, t_code code)

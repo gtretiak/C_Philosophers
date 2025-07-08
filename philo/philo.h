@@ -39,7 +39,8 @@
 typedef struct s_fork
 {
 	int		index;
-	pthread_mutex_t	mtx;
+	bool	taken;
+	pthread_mutex_t	lock;
 }	t_fork;
 
 typedef struct s_common_data
@@ -61,13 +62,13 @@ typedef struct s_common_data
 typedef struct s_philo
 {
 	pthread_t	philo_acting;
-	pthread_mutex_t	philo_lock;
+	pthread_mutex_t	lock;
 	long		position;
 	long		meals_eaten;
 	long		t_last_meal;
 //	bool		allowed_to_eat; //or ready to eat as a signal to the waiter?
 //				//priority for the waiter? OR for immediate exit if not allowed 
-	bool		rip;
+	long			rip;
 	long			full;
 	t_common_data		*table;
 	t_fork			*first_fork;
@@ -76,7 +77,6 @@ typedef struct s_philo
 
 typedef struct s_data
 {
-	pthread_mutex_t	common_lock;
 	t_common_data	*table;
 	t_fork			*all_forks;
 	t_philo			*all_philos;
@@ -122,7 +122,7 @@ int		run_simulation(t_data *cafe);
 void	*run_alone(void *arg);
 
 int		handle_error(t_data *cafe, int code, char *msg);
-void	cleanup(t_data *cafe, int code);
+int		cleanup(t_data *cafe, int code);
 int		mutex_handler(pthread_mutex_t *mutex, t_code code);
 
 int		wait_others(t_philo *philo);

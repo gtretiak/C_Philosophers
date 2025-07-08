@@ -105,7 +105,7 @@ int	printing_status(t_philo *philo, char *msg)
 
 	dinner = get_long(&philo->table->lock, &philo->table->dinner_is_over);
 	start = get_long(&philo->table->lock, &philo->table->t_start);
-	pos = get_long(&philo->philo_lock, &philo->position);
+	pos = get_long(&philo->lock, &philo->position);
 	if (dinner == -2 || start == -2 || pos == -2)
 		return (1);
 	if (dinner == 0)

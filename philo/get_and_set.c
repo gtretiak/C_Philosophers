@@ -59,8 +59,8 @@ int	set_bool(pthread_mutex_t *mutex, bool *var, bool value)
 
 long	increase_long(pthread_mutex_t *mutex, long *value)
 {
-	printf("Increase long is called\n");
 	long	ret;
+
 	if (mutex_handler(mutex, LOCK))
 		return (2);
 	else
