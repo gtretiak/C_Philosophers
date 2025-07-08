@@ -21,11 +21,11 @@ int    run_simulation(t_data *cafe)
         i = -1;
         philo_nbr = get_long(&cafe->table->lock, &cafe->table->n_philos);
 	if (philo_nbr == -2)
-		return (handle_error(cafe, 4, MUTEX));
+		return (handle_error(35, philo_nbr * 2 + 2, MUTEX, cafe));
 	if (philo_nbr == 1)
 	{
 		if (pthread_create(&cafe->all_philos[0].philo_acting, NULL, run_alone, &cafe->all_philos[0]))
-			return (handle_error(cafe, 5, THREAD));
+			return (handle_error(11, 0, THREAD, cafe));
 	}
 	else
         {

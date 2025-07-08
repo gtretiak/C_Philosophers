@@ -53,30 +53,30 @@ int	add_and_check_arguments(char **argv, t_data *cafe)
 {
 	cafe->table = malloc(sizeof(t_common_data));
 	if (cafe->table == NULL)
-		return (handle_error(cafe, 1, MALLOC));
+		return (handle_error(12, 0, MALLOC, cafe));
 	if (argv[5])
 		cafe->table->n_meals = spec_atol(argv[5]);
 	else
 		cafe->table->n_meals = -1;
 	if (cafe->table->n_meals == 0)
-		return (handle_error(cafe, 2, NO_MEALS));
+		return (handle_error(22, 1, NO_MEALS, cafe));
 	else if (cafe->table->n_meals == -2)
-		return (handle_error(cafe, 2, INVALID));
+		return (handle_error(22, 1, INVALID, cafe));
 	cafe->table->n_philos = spec_atol(argv[1]);
 	if (cafe->table->n_philos == 0)
-		return (handle_error(cafe, 2, NO_PHILOS));
+		return (handle_error(22, 1, NO_PHILOS, cafe));
 	else if (cafe->table->n_philos < 0)
-		return (handle_error(cafe, 2, INVALID));
+		return (handle_error(22, 1, INVALID, cafe));
 	cafe->table->t_die = spec_atol(argv[2]);
 	cafe->table->t_eat = spec_atol(argv[3]);
 	cafe->table->t_sleep = spec_atol(argv[4]);
 	if (cafe->table->t_die < 0
 		|| cafe->table->t_eat < 0
 		|| cafe->table->t_sleep < 0)
-		return (handle_error(cafe, 2, INVALID));
+		return (handle_error(22, 1, INVALID, cafe));
 	else if (cafe->table->t_die < 60
 		|| cafe->table->t_eat < 60
 		|| cafe->table->t_sleep < 60)
-		return (handle_error(cafe, 2, NO_TIME));
+		return (handle_error(22, 1, NO_TIME, cafe));
 	return (0);
 }

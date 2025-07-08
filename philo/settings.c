@@ -51,9 +51,10 @@ static void	setup_private(t_data *cafe, int i)
 
 static int	setup_common(t_data *cafe)
 {
-	if (mutex_handler(&cafe->table->lock, INIT)
-		|| mutex_handler(&cafe->table->print_lock, INIT))
-		return (1);
+	if (mutex_handler(&cafe->table->lock, INIT))
+		return (handle_error(35, 0, MUTEX, cafe));
+	if (mutex_handler(&cafe->table->print_lock, INIT))
+		return (handle_error(35, 1, MUTEX, cafe));
 	cafe->table->dinner_is_over = 0;
 	cafe->table->all_ready = 0;
 	cafe->table->running_threads = 0;
@@ -64,23 +65,28 @@ static int	setup_common(t_data *cafe)
 int	init(t_data *cafe)
 {
 	int	i;
+	int	j;
+	int	ret;
 
 	i = -1;
 	cafe->all_philos = malloc(cafe->table->n_philos * sizeof(t_philo));
 	if (cafe->all_philos == NULL)
-		return (handle_error(cafe, 2, MALLOC));
+		return (handle_error(22, 1, MALLOC, cafe));
 	cafe->all_forks = malloc(cafe->table->n_philos * sizeof(t_fork));
 	if (cafe->all_forks == NULL)
-		return (handle_error(cafe, 3, MALLOC));
-	if (setup_common(cafe))
-		return (handle_error(cafe, 4, MUTEX));
+		return (handle_error(22, 2, MALLOC, cafe));
+	ret = setup_common(cafe);
+	if (ret)
+		return (ret);
+	j = 2;
 	while (++i < cafe->table->n_philos)
 	{
 		setup_private(cafe, i);
 		if (mutex_handler(&cafe->all_forks[i].lock, INIT))
-			return (handle_error(cafe, 4, MUTEX));
+			return (handle_error(35, j + i, MUTEX, cafe));
+		j++;
 		if (mutex_handler(&cafe->all_philos[i].lock, INIT))
-			return (handle_error(cafe, 4, MUTEX));
+			return (handle_error(35, j + i, MUTEX, cafe));
 		assign_forks(&cafe->all_philos[i], cafe->all_forks,
 			i, cafe->table->n_philos);
 	}

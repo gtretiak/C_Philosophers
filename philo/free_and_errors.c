@@ -12,17 +12,74 @@
 
 #include "philo.h"
 
-int	handle_error(t_data *cafe, int code, char *msg)
+void	write_error(char *msg)
 {
 	short	i;
 
 	i = -1;
 	while (msg[++i])
 		write(2, &msg[i], 1);
-	if (code > 1)
+}
+
+static void	destroying_mutexes(int num, t_data *cafe)
+{
+	int	i;
+
+	i = -1;
+	if (num-- >= 2)
+		mutex_handler(&cafe->table->print_lock, DESTROY);
+	if (num-- >= 1)
+		mutex_handler(&cafe->table->lock, DESTROY);
+	while (num && ++i <= num)
 	{
-		if (cleanup(cafe, code))
-			return (handle_error(cafe, 1, MUTEX));
+		mutex_handler(&cafe->all_forks[i].lock, DESTROY);
+                if (--num == 0)
+			break ;
+                mutex_handler(&cafe->all_philos[i].lock, DESTROY);
+		--num;
+	}
+}
+
+static void	freeing(int num, t_data *cafe)
+{
+	if (num >= 1)
+	{
+		if (num >= 2)
+		{
+			if (num >= 3)
+				free(cafe->all_forks);
+			free(cafe->all_philos);
+		}
+		free(cafe->table);
+	}
+}
+
+int	handle_error(int code, int num, char *msg, t_data *cafe)
+{
+	long	philo_nbr;
+
+	if (msg)
+		write_error(msg);
+	// 11 threads
+	// 14 gettimeofday
+	// 35 mutexes
+	if (code == 22)
+		freeing(num, cafe);	
+	else if (code == 35)
+	{
+		destroying_mutexes(num, cafe);
+		freeing(3, cafe);
+	}
+		else if (code == 11)
+		{
+			philo_nbr = get_long(&cafe->table->lock, &cafe->table->n_philos);
+			if (philo_nbr == -2)
+				return (handle_error(35, 3, MUTEX, cafe))
+			destroying_mutexes(philo_nbr * 2 + 2, cafe);
+			detaching_threads(num, cafe);
+		}
+		//if (cleanup(cafe, code))
+		//	return (code + handle_error(cafe, 1, MUTEX));
 	}
 	return(code);
 }
@@ -45,11 +102,8 @@ int	cleanup(t_data *cafe, int code)
 				}
 				if (mutex_handler(&cafe->table->lock, DESTROY) || mutex_handler(&cafe->table->print_lock, DESTROY))
 					return (1);
-				free(cafe->all_forks);
 			}
-			free(cafe->all_philos);
 		}
-		free(cafe->table);
 	}
 	return (0);
 }

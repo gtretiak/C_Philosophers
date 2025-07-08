@@ -18,7 +18,7 @@ int	main(int argc, char **argv)
 	int	ret;
 
 	if (argc != 5 && argc != 6)
-		return (handle_error(&cafe, 1, ARGS));
+		return (handle_error(100, 0, ARGS, NULL));
 	ret = add_and_check_arguments(argv, &cafe);
 	if (ret)
 		return (ret);

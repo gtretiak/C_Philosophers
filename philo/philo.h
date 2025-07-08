@@ -121,7 +121,7 @@ void	*serving(void *arg);
 int		run_simulation(t_data *cafe);
 void	*run_alone(void *arg);
 
-int		handle_error(t_data *cafe, int code, char *msg);
+int		handle_error(int code, int num, char *msg, t_data *cafe);
 int		cleanup(t_data *cafe, int code);
 int		mutex_handler(pthread_mutex_t *mutex, t_code code);
 
