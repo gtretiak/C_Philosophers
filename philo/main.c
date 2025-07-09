@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:25:24 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/02 16:25:17 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/09 14:27:20 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,10 @@
 int	main(int argc, char **argv)
 {
 	t_data	cafe;
-	int	ret;
+	int		ret;
 
 	if (argc != 5 && argc != 6)
-		return (handle_error(100, 0, ARGS, NULL));
+		return (cleanup(100, 0, ARGS, NULL));
 	ret = add_and_check_arguments(argv, &cafe);
 	if (ret)
 		return (ret);
@@ -28,32 +28,42 @@ int	main(int argc, char **argv)
 	ret = run_simulation(&cafe);
 	if (ret)
 		return (ret);
-	cleanup(&cafe, 5);
+	cleanup(0, 0, NULL, &cafe);
 	return (0);
 }
 /*
  *
- *create routine function with a loop until one philo died thus we need the check for it
+ *create routine function with a loop until one philo died...
+... thus we need the check for it
  *determine routine and the order: think, eat, sleep, repeat 
  *implement logs
  *
- * Philos cannot communicate with each other neither they know if another philo is about to die
+ * Philos cannot communicate with each other...
+ * ...neither they know if another philo is about to die
  *
- * we can let different philos go ahead in an infinite loop, then throw some value back, take them in a loop and use in the consecutive calls...
+ * we can let different philos go ahead in an infinite loop..,
+ * .. then throw some value back, take them in a loop...
+ * ... and use in the consecutive calls...
  *
- *lock/unlock the same value, but not only this (we need to make sure another fork is available).
+ *lock/unlock the same value, but not only this...
+... (we need to make sure another fork is available).
  *
  *if mutex is locked other threads should either:
  - constantly busy wait - good if blocking time is short;
  - wait in an atomic mode (spinlock) - good if blocking time is long
- - poll for updates from time to time and sleep [PREFERED OPTION] for a meal time?
+ - poll for updates from time to time...
+... and sleep [PREFERED OPTION] for a meal time?
  *
  * Deadlock - when someone waits for resources (forks) to release
  * Conditions:
  * - the resource (a fork) is locked
- * - the resource (one fork) is taken, but another resource (another fork) is locked
- *Deadlock might be avoided, prevented, detected and mitigated or ignored (with data overwritten)
+ * - the resource (one fork) is taken..,
+ *   ...but another resource (another fork) is locked
+ *Deadlock might be avoided, prevented, detected...
+ ...and mitigated or ignored (with data overwritten)
 
- *   Starvation - when the process with lower priority is long waiting (A philo dies)
+ *   Starvation - when the process with lower priority...
+ *   ...is long waiting (A philo dies)
  *   When a philo is ready, it should step in a queue?
- *   That's how by using their priority we can allow the threads to take a fork*/
+ *   That's how by using their priority...
+ *   ...we can allow the threads to take a fork*/

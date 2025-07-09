@@ -6,17 +6,35 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/02 17:43:43 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/02 18:11:30 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/09 13:52:46 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
+int	mutex_handler(pthread_mutex_t *mutex, t_code code)
+{
+	int	ret;
+
+	ret = 1;
+	if (code == INIT)
+		ret = pthread_mutex_init(mutex, NULL);
+	else if (code == LOCK)
+		ret = pthread_mutex_lock(mutex);
+	else if (code == UNLOCK)
+		ret = pthread_mutex_unlock(mutex);
+	else if (code == DESTROY)
+		ret = pthread_mutex_destroy(mutex);
+	if (ret)
+		write_error(MUTEX);
+	return (ret);
+}
+
 long	get_long(pthread_mutex_t *mutex, long *value)
 {
 	long	ret;
 
-	if (*value == -777 || mutex_handler(mutex, LOCK))
+	if (*value == -666 || mutex_handler(mutex, LOCK))
 		return (-2);
 	else
 		ret = *value;
@@ -29,7 +47,7 @@ int	set_long(pthread_mutex_t *mutex, long *var, long value)
 {
 	int	ret;
 
-	if (mutex_handler(mutex, LOCK))
+	if (value == -666 || mutex_handler(mutex, LOCK))
 		return (1);
 	else
 	{

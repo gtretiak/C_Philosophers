@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:21:39 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/02 19:14:30 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/09 15:02:30 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@
 # define NO_TIME "Error: one or more timestamps is too low (min 60ms). Exit.\n"
 # define MALLOC "Error: malloc has failed. Exit.\n"
 # define THREAD "Error: thread has failed. Exit.\n"
+# define TIME "Error: gettimeofday has failed. Exit.\n"
 # define MUTEX "Error: mutex has failed. Exit.\n"
 # define FORK "has taken a fork\n"
 # define EAT "is eating\n"
@@ -38,9 +39,9 @@
 
 typedef struct s_fork
 {
-	int		index;
-	bool	taken;
 	pthread_mutex_t	lock;
+	int				index;
+	bool			taken;
 }	t_fork;
 
 typedef struct s_common_data
@@ -49,6 +50,7 @@ typedef struct s_common_data
 	pthread_mutex_t	print_lock;
 	long			t_start;
 	long			n_philos;
+	long			n_philos_reserved;
 	long			t_eat;
 	long			t_sleep;
 	long			t_die;
@@ -61,25 +63,25 @@ typedef struct s_common_data
 
 typedef struct s_philo
 {
-	pthread_t	philo_acting;
 	pthread_mutex_t	lock;
-	long		position;
-	long		meals_eaten;
-	long		t_last_meal;
+	pthread_t		th;
+	long			pos;
+	long			meals_eaten;
+	long			t_last_meal;
 //	bool		allowed_to_eat; //or ready to eat as a signal to the waiter?
 //				//priority for the waiter? OR for immediate exit if not allowed 
 	long			rip;
 	long			full;
-	t_common_data		*table;
-	t_fork			*first_fork;
-	t_fork			*second_fork;
+	t_common_data	*table;
+	t_fork			*fork1;
+	t_fork			*fork2;
 }	t_philo;
 
 typedef struct s_data
 {
 	t_common_data	*table;
-	t_fork			*all_forks;
-	t_philo			*all_philos;
+	t_fork			*forks;
+	t_philo			*philos;
 	pthread_t		waiter;
 }	t_data;
 
@@ -95,22 +97,9 @@ typedef enum e_code
 
 typedef enum e_time
 {
-	MICRO,
-	MILI
+	US,
+	MS
 }	t_time;
-/*
- * memset - to set a memory chunk with value
- * printf, write
- * malloc, free
- * usleep - to pause a thread execution
- * gettimeofday
- * pthread_create - to create a new thread running a routine function
- * pthread_detach - to release resources on exit (if we don't need anything from it)
- * pthread_join - to wait for the non-detached thread (e.g. to use return value)
- * pthread_mutex_init - to initialize a mutex
- * pthread_mutex_destroy - to free mutex resources (should be unlocked)
- * pthread_mutex_lock, pthread_mutex_unlock
- * */
 
 int		init(t_data *cafe);
 int		add_and_check_arguments(char **argv, t_data *cafe);
@@ -121,14 +110,14 @@ void	*serving(void *arg);
 int		run_simulation(t_data *cafe);
 void	*run_alone(void *arg);
 
-int		handle_error(int code, int num, char *msg, t_data *cafe);
-int		cleanup(t_data *cafe, int code);
+int		cleanup(int code, int num, char *msg, t_data *cafe);
+void	*write_error(char *msg);
 int		mutex_handler(pthread_mutex_t *mutex, t_code code);
 
 int		wait_others(t_philo *philo);
 int		all_running(t_common_data *table);
 long	get_time(t_time time);
-int		precise_usleep(long sleeping_time, t_common_data *table);
+int		sleeping(long sleeping_time, long start, t_common_data *table);
 int		printing_status(t_philo *philo, char *msg);
 
 long	increase_long(pthread_mutex_t *mutex, long *value);

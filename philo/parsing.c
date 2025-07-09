@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 12:56:31 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/02 18:52:15 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/09 14:24:26 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,34 +49,44 @@ static long	spec_atol(char *s)
 	return (res);
 }
 
-int	add_and_check_arguments(char **argv, t_data *cafe)
+static int	init_data(char **argv, t_data *cafe)
 {
 	cafe->table = malloc(sizeof(t_common_data));
 	if (cafe->table == NULL)
-		return (handle_error(12, 0, MALLOC, cafe));
+		return (cleanup(12, 0, MALLOC, cafe));
+	cafe->table->n_philos = spec_atol(argv[1]);
+	cafe->table->t_die = spec_atol(argv[2]);
+	cafe->table->t_eat = spec_atol(argv[3]);
+	cafe->table->t_sleep = spec_atol(argv[4]);
 	if (argv[5])
 		cafe->table->n_meals = spec_atol(argv[5]);
 	else
 		cafe->table->n_meals = -1;
+	return (0);
+}
+
+int	add_and_check_arguments(char **argv, t_data *cafe)
+{
+	int	ret;
+
+	ret = init_data(argv, cafe);
+	if (ret)
+		return (ret);
 	if (cafe->table->n_meals == 0)
-		return (handle_error(22, 1, NO_MEALS, cafe));
+		return (cleanup(22, 1, NO_MEALS, cafe));
 	else if (cafe->table->n_meals == -2)
-		return (handle_error(22, 1, INVALID, cafe));
-	cafe->table->n_philos = spec_atol(argv[1]);
+		return (cleanup(22, 1, INVALID, cafe));
 	if (cafe->table->n_philos == 0)
-		return (handle_error(22, 1, NO_PHILOS, cafe));
+		return (cleanup(22, 1, NO_PHILOS, cafe));
 	else if (cafe->table->n_philos < 0)
-		return (handle_error(22, 1, INVALID, cafe));
-	cafe->table->t_die = spec_atol(argv[2]);
-	cafe->table->t_eat = spec_atol(argv[3]);
-	cafe->table->t_sleep = spec_atol(argv[4]);
+		return (cleanup(22, 1, INVALID, cafe));
 	if (cafe->table->t_die < 0
 		|| cafe->table->t_eat < 0
 		|| cafe->table->t_sleep < 0)
-		return (handle_error(22, 1, INVALID, cafe));
+		return (cleanup(22, 1, INVALID, cafe));
 	else if (cafe->table->t_die < 60
 		|| cafe->table->t_eat < 60
 		|| cafe->table->t_sleep < 60)
-		return (handle_error(22, 1, NO_TIME, cafe));
+		return (cleanup(22, 1, NO_TIME, cafe));
 	return (0);
 }
