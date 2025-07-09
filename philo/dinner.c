@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/21 15:48:53 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/09 15:05:04 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/09 19:23:36 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ int	run_simulation(t_data *cafe)
 	philo_nbr = get_long(&cafe->table->lock, &cafe->table->n_philos);
 	if (philo_nbr == -2)
 		return (cleanup(35, philo_nbr * 2 + 2, NULL, cafe));
+	//thread creation
 	if (philo_nbr == 1)
 	{
 		if (pthread_create(&cafe->philos[0].th, NULL,
@@ -40,13 +41,15 @@ int	run_simulation(t_data *cafe)
 	}
 	if (pthread_create(&cafe->waiter, NULL, serving, &cafe))
 		return (cleanup(11, i - 1, THREAD, cafe));
+	//preparation
 	if (set_long(&cafe->table->lock, &cafe->table->t_start, get_time(MS))
 		|| set_long(&cafe->table->lock, &cafe->table->all_ready, 1))
 		return (cleanup(11, i, NULL, cafe));
+	//joining (do I need to join the waiter last? If so, redo i & j)
 	if (pthread_join(cafe->waiter, (void *)&ret))
 		return (cleanup(11, i - 1, THREAD, cafe));
 	else if (ret != (void *)0)
-		return (cleanup(11, i - 1, NULL, cafe));
+		return (cleanup(11, i, NULL, cafe));
 	j = i - 2;
 	if (philo_nbr == 1)
 	{
@@ -76,9 +79,9 @@ void	*run_alone(void *arg)
 	long	the_end;
 
 	philo = (t_philo *)arg;
-	if (increase_long(&philo->table->lock, &philo->table->running_threads))
-		return ((void *)1);
 	if (wait_others(philo))
+		return ((void *)1);
+	if (increase_long(&philo->table->lock, &philo->table->running_threads))
 		return ((void *)1);
 	if (set_long(&philo->lock, &philo->t_last_meal, get_time(MS)))
 		return ((void *)1);
@@ -105,15 +108,18 @@ void	*run_alone(void *arg)
 	return ((void *)0);
 }
 
-int	thinking_phase(t_philo *philo)
+int	thinking_phase(t_philo *philo, bool preset)
 {
 	long	t_think;
 	long	t_to_eat;
 	long	t_to_sleep;
 	long	philos_nbr;
 
-	if (printing_status(philo, THINK))
-		return (1);
+	if (!preset)
+	{
+		if (printing_status(philo, THINK))
+			return (1);
+	}
 	philos_nbr = get_long(&philo->table->lock, &philo->table->n_philos);
 	if (philos_nbr == -2)
 		return (1);
@@ -144,7 +150,7 @@ int	think_about(t_philo *philo)
 	else
 	{
 		if (philo->pos % 2 != 0)
-			if (thinking_phase(philo))
+			if (thinking_phase(philo, true)) 
 				return (1);
 	}
 	return (0);
@@ -157,8 +163,10 @@ int	eating_phase(t_philo *philo)
 	long	time;
 	long	eaten;
 
-	if (get_long(&philo->table->lock, &philo->table->dinner_is_over) == 0)
+	the_end = get_long(&philo->table->lock, &philo->table->dinner_is_over);
+	if (the_end == 0)
 	{
+		// taking forks + checking if forks are available
 		if (set_bool(&philo->fork1->lock, &philo->fork1->taken, true))
 			return (1);
 		if (printing_status(philo, FORK))
@@ -167,6 +175,7 @@ int	eating_phase(t_philo *philo)
 			return (1);
 		if (printing_status(philo, FORK))
 			return (1);
+		//eating
 		time = get_time(MS);
 		if (!time || set_long(&philo->lock, &philo->t_last_meal, get_time(MS)))
 			return (1);
@@ -174,10 +183,12 @@ int	eating_phase(t_philo *philo)
 			return (1);
 		if (sleeping(philo->table->t_eat * 1e3, get_time(US), philo->table))
 			return (1);
+		//releasing forks
 		if (set_bool(&philo->fork1->lock, &philo->fork1->taken, false))
 			return (1);
 		if (set_bool(&philo->fork2->lock, &philo->fork2->taken, false))
 			return (1);
+		//updating data
 		meals_nbr = get_long(&philo->table->lock, &philo->table->n_meals);
 		if (meals_nbr == -2 || increase_long(&philo->lock, &philo->meals_eaten))
 			return (1);
@@ -190,8 +201,7 @@ int	eating_phase(t_philo *philo)
 				return (1);
 		}
 	}
-	the_end = get_long(&philo->table->lock, &philo->table->dinner_is_over);
-	if (the_end == -2)
+	else if (the_end == -2)
 		return (1);
 	return (0);
 }
@@ -203,16 +213,23 @@ void	*dinner(void *arg)
 	long	temp;
 
 	philo = (t_philo *)arg;
-	if (increase_long(&philo->table->lock, &philo->table->running_threads))
-		return ((void *)1);
 	if (wait_others(philo))
+		return ((void *)1);
+	if (increase_long(&philo->table->lock, &philo->table->running_threads))
 		return ((void *)1);
 	if (set_long(&philo->lock, &philo->t_last_meal, get_time(MS)))
 		return ((void *)1);
+	//think
 	if (think_about(philo))
 		return ((void *)1);
-	while (get_long(&philo->table->lock, &philo->table->dinner_is_over) == 0)
+	while (1)
 	{
+		temp = get_long(&philo->table->lock, &philo->table->dinner_is_over);
+	       	if (temp < 0)
+			return ((void *)1);
+		else if (temp > 0)
+			break ;
+		//am I dead?
 		t_curr = get_time(MS);
 		if (t_curr < 0)
 			return ((void *)1);
@@ -221,7 +238,6 @@ void	*dinner(void *arg)
 			return ((void *)1);
 		t_curr -= temp;
 		temp = get_long(&philo->table->lock, &philo->table->t_die);
-		printf("Time passed:%ld\nTime to die:%ld\n", t_curr, temp);
 		if (temp == -2)
 			return ((void *)1);
 		if (temp < t_curr)
@@ -232,18 +248,17 @@ void	*dinner(void *arg)
 				return ((void *)1);
 			return ((void *)0);
 		}
+		//eat
 		if (eating_phase(philo))
 			return ((void *)1);
-		printf("Philo %ld. Time:%ld\nLast meal:%ld\n",
-			philo->pos, t_curr, temp);
+		//sleep
 		if (printing_status(philo, SLEEP))
 			return ((void *)1);
 		if (sleeping(philo->table->t_sleep * 1e3, get_time(US), philo->table))
 			return ((void *)1);
+		if (thinking_phase(philo, false))
+			return ((void *)1);
 	}
-	temp = get_long(&philo->table->lock, &philo->table->dinner_is_over);
-	if (temp == -2)
-		return ((void *)1);
 	return ((void *)0);
 }
 
@@ -255,20 +270,26 @@ void	*serving(void *arg)
 	long	temp;
 
 	cafe = (t_data *)arg;
-	printf("Serving thread started\n");
-	while (all_running(cafe->table) != 1)
-		sleeping(1000, get_time(US), cafe->table);
+	while (1)
+	{
+		i = all_running(cafe->table);
+	       	if (i == 1)
+			break ;
+		else if (i < 0)
+			return ((void *)1);
+		;
+	}
 	iter = get_long(&cafe->table->lock, &cafe->table->n_philos);
 	if (iter == -2)
 		return ((void *)1);
-	while (get_long(&cafe->table->lock, &cafe->table->dinner_is_over)
-		== 0 && get_long(&cafe->table->lock, &cafe->table->n_full) < iter)
+	while (1)
 	{
 		i = -1;
 		while (++i < iter
 			&& get_long(&cafe->table->lock, &cafe->table->dinner_is_over)
 			== 0 && get_long(&cafe->table->lock, &cafe->table->n_full) < iter)
 		{
+			//if philo is dead? -> dinner is over
 			temp = get_long(&cafe->philos[i].lock, &cafe->philos[i].rip);
 			if (temp < 0)
 				return ((void *)1);
@@ -279,6 +300,8 @@ void	*serving(void *arg)
 					return ((void *)1);
 				return ((void *)0);
 			}
+			// if philo is full? -> increase and see if all the full
+			// if so -> dinner is over
 			temp = get_long(&cafe->philos[i].lock, &cafe->philos[i].full);
 			if (temp < 0)
 				return ((void *)1);
@@ -296,15 +319,11 @@ void	*serving(void *arg)
 						return ((void *)1);
 					return ((void *)0);
 				}
-				printf("Checking if %ld died (last meal: %ld, now: %ld)\n",
+			/*	printf("Checking if %ld died (last meal: %ld, now: %ld)\n",
 					cafe->philos[i].pos, cafe->philos[i].t_last_meal,
-					get_time(MS));
-				fflush(stdout);
+					get_time(MS));*/
 			}
 		}
 	}
-	temp = set_long(&cafe->table->lock, &cafe->table->dinner_is_over, 1);
-	if (temp == -2)
-		return ((void *)1);
 	return ((void *)0);
 }

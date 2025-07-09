@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/02 17:43:43 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/09 13:52:46 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/09 17:05:30 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,9 @@ long	get_long(pthread_mutex_t *mutex, long *value)
 
 	if (*value == -666 || mutex_handler(mutex, LOCK))
 		return (-2);
-	else
-		ret = *value;
+	ret = *value;
 	if (mutex_handler(mutex, UNLOCK))
-		ret = -2;
+		return (-2);
 	return (ret);
 }
 

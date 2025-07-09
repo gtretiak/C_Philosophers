@@ -6,13 +6,13 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/28 16:43:56 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/09 15:12:33 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/09 19:23:47 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	*write_error(char *msg)
+void	*write_error(char *msg, t_common_data *table)
 {
 	short	i;
 
@@ -31,7 +31,7 @@ static void	destroying_mutexes(int num, t_data *cafe)
 		mutex_handler(&cafe->table->print_lock, DESTROY);
 	if (num-- >= 1)
 		mutex_handler(&cafe->table->lock, DESTROY);
-	while (num && ++i <= num)
+	while (num && ++i < num)
 	{
 		mutex_handler(&cafe->forks[i].lock, DESTROY);
 		if (--num == 0)

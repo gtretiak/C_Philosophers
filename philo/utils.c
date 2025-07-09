@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/28 20:11:50 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/09 15:02:44 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/09 18:12:50 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,15 @@ int	wait_others(t_philo *philo)
 	{
 		check = get_long(&philo->table->lock, &philo->table->all_ready);
 		if (check == 1)
-			break ;
+			return (0);
 		else if (check == -2)
 			return (1);
+		usleep(100);
 	}
-	return (0);
 }
 
 int	all_running(t_common_data *table)
 {
-	int		ret;
 	long	philo_nbr;
 	long	n_threads;
 
@@ -40,12 +39,9 @@ int	all_running(t_common_data *table)
 	if (n_threads == -2)
 		return (-1);
 	if (n_threads == philo_nbr)
-		ret = 1;
-	else
-		ret = 0;
-	printf("%ld threads running, philo_nbr:%ld\n", n_threads, philo_nbr);
-	fflush(stdout);
-	return (ret);
+		return (1);
+	//printf("%ld threads running, philo_nbr:%ld\n", n_threads, philo_nbr);
+	return (0);
 }
 
 long	get_time(t_time time)
