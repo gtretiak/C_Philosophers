@@ -33,20 +33,20 @@ int    run_simulation(t_data *cafe)
 		{
 			if (pthread_create(&cafe->all_philos[i].philo_acting, NULL,
                         dinner, &cafe->all_philos[i]))
-				return (handle_error(cafe, 5, THREAD));
+				return (handle_error(11, i, THREAD, cafe));
 		}
         }
 	if (pthread_create(&cafe->waiter, NULL, serving, &cafe))
-		return (handle_error(cafe, 5, THREAD));
+		return (handle_error(11, i - 1, THREAD, cafe));
 	if (set_long(&cafe->table->lock, &cafe->table->t_start, get_time(MILI))
 	|| set_long(&cafe->table->lock, &cafe->table->all_ready, 1))
-		return (handle_error(cafe, 5, MUTEX));
+		return (handle_error(11, i, MUTEX, cafe));
 	if (pthread_join(cafe->waiter, (void *)&ret) || ret != (void *)0)
-		return (handle_error(cafe, 5, THREAD));
+		return (handle_error(11, i - 1, THREAD, cafe));
 	if (philo_nbr == 1)
 	{
 		if (pthread_join(cafe->all_philos[0].philo_acting, (void *)&ret) || ret != (void *)0)
-			return (handle_error(cafe, 5, THREAD));
+			return (handle_error(11, i - 2, THREAD, cafe));
 	}
 	else
 	{

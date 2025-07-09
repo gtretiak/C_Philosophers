@@ -54,29 +54,38 @@ static void	freeing(int num, t_data *cafe)
 	}
 }
 
+static void	detaching_threads(int num, int philo_nbr, t_data *cafe)
+{
+	int	i;
+
+	i = -1;
+	if (num == philo_nbr)
+		pthread_detach(cafe->waiter);
+	while (++i <= num)
+		pthread_detach(cafe->all_philos[i].philo_acting);
+}
+
 int	handle_error(int code, int num, char *msg, t_data *cafe)
 {
 	long	philo_nbr;
 
 	if (msg)
 		write_error(msg);
-	// 11 threads
 	// 14 gettimeofday
-	// 35 mutexes
-	if (code == 22)
+	if (code == 22) //invalid
 		freeing(num, cafe);	
-	else if (code == 35)
+	else if (code == 35) //mutexes
 	{
 		destroying_mutexes(num, cafe);
 		freeing(3, cafe);
 	}
-		else if (code == 11)
+		else if (code == 11) //threads
 		{
 			philo_nbr = get_long(&cafe->table->lock, &cafe->table->n_philos);
 			if (philo_nbr == -2)
 				return (handle_error(35, 3, MUTEX, cafe))
 			destroying_mutexes(philo_nbr * 2 + 2, cafe);
-			detaching_threads(num, cafe);
+			detaching_threads(num, philo_nbr, cafe);
 		}
 		//if (cleanup(cafe, code))
 		//	return (code + handle_error(cafe, 1, MUTEX));
