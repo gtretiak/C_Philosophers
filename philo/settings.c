@@ -23,15 +23,11 @@ static void	assign_forks(t_philo *philo, t_fork *forks, int i, int n_philo)
 	else
 		right_fork = n_philo - 1;
 	philo->fork1 = &forks[right_fork];
-	philo->fork1->index = right_fork;
 	philo->fork2 = &forks[left_fork];
-	philo->fork2->index = left_fork;
 	if (philo->pos % 2 == 0)
 	{
 		philo->fork1 = &forks[left_fork];
-		philo->fork1->index = left_fork;
 		philo->fork2 = &forks[right_fork];
-		philo->fork2->index = right_fork;
 	}
 }
 
@@ -42,15 +38,14 @@ static void	setup_private(t_data *cafe, int i)
 	cafe->philos[i].meals_eaten = 0;
 	cafe->philos[i].full = 0;
 	cafe->philos[i].table = cafe->table;
-	cafe->forks[i].index = i;
-	cafe->forks[i].taken = false;
+	cafe->forks[i].taken = 0;
 }
 
 static int	setup_common(t_data *cafe)
 {
-	if (mutex_handler(&cafe->table->lock, INIT))
+	if (handle_mtx(&cafe->table->lock, INIT, cafe->table))
 		return (cleanup(35, 0, NULL, cafe));
-	if (mutex_handler(&cafe->table->print_lock, INIT))
+	if (handle_mtx(&cafe->table->print_lock, INIT, cafe->table))
 		return (cleanup(35, 1, NULL, cafe));
 	cafe->table->n_philos_reserved = cafe->table->n_philos;
 	cafe->table->dinner_is_over = 0;
@@ -88,10 +83,10 @@ int	init(t_data *cafe)
 	while (++i < cafe->table->n_philos)
 	{
 		setup_private(cafe, i);
-		if (mutex_handler(&cafe->forks[i].lock, INIT))
+		if (handle_mtx(&cafe->forks[i].lock, INIT, cafe->table))
 			return (cleanup(35, j + i, NULL, cafe));
 		j++;
-		if (mutex_handler(&cafe->philos[i].lock, INIT))
+		if (handle_mtx(&cafe->philos[i].lock, INIT, cafe->table))
 			return (cleanup(35, j + i, NULL, cafe));
 		assign_forks(&cafe->philos[i], cafe->forks,
 			i, cafe->table->n_philos);

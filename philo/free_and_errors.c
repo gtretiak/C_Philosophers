@@ -12,13 +12,15 @@
 
 #include "philo.h"
 
-void	*write_error(char *msg, t_common_data *table)
+void	*write_error(char *msg, t_table *table)
 {
 	short	i;
 
+	handle_mtx(&table->print_lock, LOCK, table);
 	i = -1;
 	while (msg[++i])
 		write(2, &msg[i], 1);
+	handle_mtx(&table->print_lock, UNLOCK, table);
 	return ((void *)1);
 }
 
@@ -28,15 +30,15 @@ static void	destroying_mutexes(int num, t_data *cafe)
 
 	i = -1;
 	if (num-- >= 2)
-		mutex_handler(&cafe->table->print_lock, DESTROY);
+		handle_mtx(&cafe->table->print_lock, DESTROY, cafe->table);
 	if (num-- >= 1)
-		mutex_handler(&cafe->table->lock, DESTROY);
+		handle_mtx(&cafe->table->lock, DESTROY, cafe->table);
 	while (num && ++i < num)
 	{
-		mutex_handler(&cafe->forks[i].lock, DESTROY);
+		handle_mtx(&cafe->forks[i].lock, DESTROY, cafe->table);
 		if (--num == 0)
 			break ;
-		mutex_handler(&cafe->philos[i].lock, DESTROY);
+		handle_mtx(&cafe->philos[i].lock, DESTROY, cafe->table);
 		--num;
 	}
 }
@@ -60,15 +62,16 @@ static void	detaching_threads(int num, int philo_nbr, t_data *cafe)
 	int	i;
 
 	i = -1;
-	if (num == philo_nbr)
+	if (num > philo_nbr)
 	{
+		--num;
 		if (pthread_detach(cafe->waiter))
-			write_error(THREAD);
+			write_error(THREAD, cafe->table);
 	}
-	while (++i <= num)
+	while (++i < num)
 	{
 		if (pthread_detach(cafe->philos[i].th))
-			write_error(THREAD);
+			write_error(THREAD, cafe->table);
 	}
 }
 
@@ -78,7 +81,7 @@ int	cleanup(int code, int num, char *msg, t_data *cafe)
 
 	philo_nbr = cafe->table->n_philos_reserved;
 	if (msg)
-		write_error(msg);
+		write_error(msg, cafe->table);
 	if (code == 22)
 		freeing(num, cafe);
 	else if (code == 35)
@@ -95,7 +98,6 @@ int	cleanup(int code, int num, char *msg, t_data *cafe)
 	else if (code == 0)
 	{
 		destroying_mutexes(philo_nbr * 2 + 2, cafe);
-		detaching_threads(philo_nbr, philo_nbr, cafe);
 		freeing(3, cafe);
 	}
 	return (code);

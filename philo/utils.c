@@ -18,7 +18,7 @@ int	wait_others(t_philo *philo)
 
 	while (1)
 	{
-		check = get_long(&philo->table->lock, &philo->table->all_ready);
+		check = get_long(&philo->table->lock, &philo->table->all_ready, philo->table);
 		if (check == 1)
 			return (0);
 		else if (check == -2)
@@ -27,15 +27,15 @@ int	wait_others(t_philo *philo)
 	}
 }
 
-int	all_running(t_common_data *table)
+int	all_running(t_table *table)
 {
 	long	philo_nbr;
 	long	n_threads;
 
-	philo_nbr = get_long(&table->lock, &table->n_philos);
+	philo_nbr = get_long(&table->lock, &table->n_philos, table);
 	if (philo_nbr == -2)
 		return (-1);
-	n_threads = get_long(&table->lock, &table->running_threads);
+	n_threads = get_long(&table->lock, &table->running_threads, table);
 	if (n_threads == -2)
 		return (-1);
 	if (n_threads == philo_nbr)
@@ -44,13 +44,13 @@ int	all_running(t_common_data *table)
 	return (0);
 }
 
-long	get_time(t_time time)
+long	get_time(t_time time, t_table *table)
 {
 	struct timeval	ts;
 
 	if (gettimeofday(&ts, NULL))
 	{
-		write_error(TIME);
+		write_error(TIME, table);
 		return (-666);
 	}
 	if (time == US)
@@ -60,29 +60,36 @@ long	get_time(t_time time)
 	return (42);
 }
 
-int	sleeping(long duration, long start, t_common_data *table)
+int	sleeping(long duration, long start, t_table *table)
 {
 	long	elapsed;
 	long	dinner;
 
 	if (start < 0)
 		return (1);
-	while (get_time(US) - start < duration)
+	while (get_time(US, table) - start < duration)
 	{
-		dinner = get_long(&table->lock, &table->dinner_is_over);
+		dinner = get_long(&table->lock, &table->dinner_is_over, table);
 		if (dinner == -2)
 			return (1);
 		if (dinner == 1)
 			break ;
-		elapsed = get_time(US) - start;
+		elapsed = get_time(US, table) - start;
 		if (elapsed < 0)
 			return (1);
 		if (duration - elapsed > 1e3)
-			usleep((duration - elapsed) / 2);
+			usleep(5e2);
 		else
 		{
-			while (get_time(US) - start < duration)
+			while (get_time(US, table) - start < duration)
+			{
+				dinner = get_long(&table->lock, &table->dinner_is_over, table);
+				if (dinner == -2)
+					return (1);
+				if (dinner == 1)
+					return (0);
 				;
+			}
 		}
 	}
 	return (0);
@@ -95,20 +102,20 @@ int	printing_status(t_philo *philo, char *msg)
 	long	start;
 	long	pos;
 
-	dinner = get_long(&philo->table->lock, &philo->table->dinner_is_over);
-	start = get_long(&philo->table->lock, &philo->table->t_start);
-	pos = get_long(&philo->lock, &philo->pos);
+	dinner = get_long(&philo->table->lock, &philo->table->dinner_is_over, philo->table);
+	start = get_long(&philo->table->lock, &philo->table->t_start, philo->table);
+	pos = get_long(&philo->lock, &philo->pos, philo->table);
 	if (dinner == -2 || start == -2 || pos == -2)
 		return (1);
 	if (dinner == 0)
 	{
-		time = get_time(MS) - start;
+		time = get_time(MS, philo->table) - start;
 		if (time < 0)
 			return (1);
-		if (mutex_handler(&philo->table->print_lock, LOCK))
+		if (handle_mtx(&philo->table->print_lock, LOCK, philo->table))
 			return (1);
 		printf("%ld %ld %s", time, pos, msg);
-		if (mutex_handler(&philo->table->print_lock, UNLOCK))
+		if (handle_mtx(&philo->table->print_lock, UNLOCK, philo->table))
 			return (1);
 	}
 	return (0);

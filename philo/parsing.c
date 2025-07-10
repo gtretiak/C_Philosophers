@@ -51,7 +51,7 @@ static long	spec_atol(char *s)
 
 static int	init_data(char **argv, t_data *cafe)
 {
-	cafe->table = malloc(sizeof(t_common_data));
+	cafe->table = malloc(sizeof(t_table));
 	if (cafe->table == NULL)
 		return (cleanup(12, 0, MALLOC, cafe));
 	cafe->table->n_philos = spec_atol(argv[1]);

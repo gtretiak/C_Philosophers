@@ -40,11 +40,10 @@
 typedef struct s_fork
 {
 	pthread_mutex_t	lock;
-	int				index;
-	bool			taken;
+	long			taken;
 }	t_fork;
 
-typedef struct s_common_data
+typedef struct s_table
 {
 	pthread_mutex_t	lock;
 	pthread_mutex_t	print_lock;
@@ -59,7 +58,7 @@ typedef struct s_common_data
 	long			running_threads;
 	long			all_ready;
 	long			dinner_is_over;
-}	t_common_data;
+}	t_table;
 
 typedef struct s_philo
 {
@@ -72,14 +71,14 @@ typedef struct s_philo
 //				//priority for the waiter? OR for immediate exit if not allowed 
 	long			rip;
 	long			full;
-	t_common_data	*table;
+	t_table	*table;
 	t_fork			*fork1;
 	t_fork			*fork2;
 }	t_philo;
 
 typedef struct s_data
 {
-	t_common_data	*table;
+	t_table	*table;
 	t_fork			*forks;
 	t_philo			*philos;
 	pthread_t		waiter;
@@ -111,17 +110,16 @@ int		run_simulation(t_data *cafe);
 void	*run_alone(void *arg);
 
 int		cleanup(int code, int num, char *msg, t_data *cafe);
-void	*write_error(char *msg);
-int		mutex_handler(pthread_mutex_t *mutex, t_code code);
-
+void	*write_error(char *msg, t_table *table);
+int		handle_mtx(pthread_mutex_t *mtx, t_code code, t_table *table);
 int		wait_others(t_philo *philo);
-int		all_running(t_common_data *table);
-long	get_time(t_time time);
-int		sleeping(long sleeping_time, long start, t_common_data *table);
+int		all_running(t_table *table);
+long	get_time(t_time time, t_table *table);
+int		sleeping(long sleeping_time, long start, t_table *table);
 int		printing_status(t_philo *philo, char *msg);
 
-long	increase_long(pthread_mutex_t *mutex, long *value);
-long	get_long(pthread_mutex_t *mutex, long *value);
-int		set_long(pthread_mutex_t *mutex, long *var, long value);
-int		set_bool(pthread_mutex_t *mutex, bool *var, bool value);
+long	increase_long(pthread_mutex_t *mtx, long *value, t_table *table);
+long	get_long(pthread_mutex_t *mtx, long *value, t_table *table);
+int		set_long(pthread_mutex_t *mtx, long *var, long value, t_table *table);
+int		set_bool(pthread_mutex_t *mtx, bool *var, bool value, t_table *table);
 #endif
