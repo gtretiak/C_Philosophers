@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/28 16:43:56 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/09 19:23:47 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/10 15:15:34 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,10 @@ void	*write_error(char *msg, t_table *table)
 	handle_mtx(&table->print_lock, LOCK, table);
 	i = -1;
 	while (msg[++i])
-		write(2, &msg[i], 1);
+	{
+		if (write(2, &msg[i], 1))
+			return ((void *)1);
+	}
 	handle_mtx(&table->print_lock, UNLOCK, table);
 	return ((void *)1);
 }

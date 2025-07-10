@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/21 15:48:53 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/10 13:32:23 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/10 15:29:48 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,8 +161,8 @@ int	eating_phase(t_philo *philo)
 	long	time;
 	long	eaten;
 
-//	while (1)
-//	{
+	while (1)
+	{
 		temp = get_long(&philo->table->lock, &philo->table->dinner_is_over, philo->table);
 		if (temp == 1)
 			return (0);
@@ -171,12 +171,6 @@ int	eating_phase(t_philo *philo)
 			return (1);
 		if (set_long(&philo->fork1->lock, &philo->fork1->taken, 1, philo->table))
 			return (1);
-//		if (handle_mtx(&philo->fork1->lock, LOCK, philo->table))
-//			return (1);
-		if (printing_status(philo, FORK))
-			return (1);
-//		if (handle_mtx(&philo->fork2->lock, LOCK, philo->table))
-//			return (1);
 		temp = get_long(&philo->fork2->lock, &philo->fork2->taken, philo->table);
 		if (temp < 0)
 			return (1);
@@ -185,43 +179,41 @@ int	eating_phase(t_philo *philo)
 			if (set_long(&philo->fork1->lock, &philo->fork1->taken, 0, philo->table))
 				return (1);
 			usleep(100 + (philo->pos % 10) * 100);
-			return (0);
-			//continue ;
+			continue ;
 		}
-		if (set_long(&philo->fork2->lock, &philo->fork2->taken, 1, philo->table))
+		break ;
+	}
+	if (printing_status(philo, FORK))
+		return (1);
+	if (set_long(&philo->fork2->lock, &philo->fork2->taken, 1, philo->table))
+		return (1);
+	if (printing_status(philo, FORK))
+		return (1);
+	//eating
+	time = get_time(MS, philo->table);
+	if (time < 0 || set_long(&philo->lock, &philo->t_last_meal, get_time(MS, philo->table), philo->table))
+		return (1);
+	if (printing_status(philo, EAT))
+		return (1);
+	if (sleeping(philo->table->t_eat * 1e3, get_time(US, philo->table), philo->table))
+		return (1);
+	//releasing forks
+	if (set_long(&philo->fork2->lock, &philo->fork2->taken, 0, philo->table))
+		return (1);
+	if (set_long(&philo->fork1->lock, &philo->fork1->taken, 0, philo->table))
+		return (1);
+	//updating data
+	meals_nbr = get_long(&philo->table->lock, &philo->table->n_meals, philo->table);
+	if (meals_nbr == -2 || increase_long(&philo->lock, &philo->meals_eaten, philo->table))
+		return (1);
+	eaten = get_long(&philo->lock, &philo->meals_eaten, philo->table);
+	if (eaten < 0)
+		return (1);
+	if (meals_nbr != -1 && eaten >= meals_nbr)
+	{
+		if (set_long(&philo->lock, &philo->full, 1, philo->table))
 			return (1);
-		if (printing_status(philo, FORK))
-			return (1);
-		//eating
-		time = get_time(MS, philo->table);
-		if (time < 0 || set_long(&philo->lock, &philo->t_last_meal, get_time(MS, philo->table), philo->table))
-			return (1);
-		if (printing_status(philo, EAT))
-			return (1);
-		if (sleeping(philo->table->t_eat * 1e3, get_time(US, philo->table), philo->table))
-			return (1);
-		//releasing forks
-		/*if (handle_mtx(&philo->fork1->lock, UNLOCK, philo->table))
-			return (1);
-		if (handle_mtx(&philo->fork2->lock, UNLOCK, philo->table))
-			return (1);*/
-		if (set_long(&philo->fork2->lock, &philo->fork2->taken, 0, philo->table))
-			return (1);
-		if (set_long(&philo->fork1->lock, &philo->fork1->taken, 0, philo->table))
-			return (1);
-		//updating data
-		meals_nbr = get_long(&philo->table->lock, &philo->table->n_meals, philo->table);
-		if (meals_nbr == -2 || increase_long(&philo->lock, &philo->meals_eaten, philo->table))
-			return (1);
-		eaten = get_long(&philo->lock, &philo->meals_eaten, philo->table);
-		if (eaten < 0)
-			return (1);
-		if (meals_nbr != -1 && eaten >= meals_nbr)
-		{
-			if (set_long(&philo->lock, &philo->full, 1, philo->table))
-				return (1);
-		}
-		//break ;
+	}
 	return (0);
 }
 
@@ -361,7 +353,7 @@ void	*serving(void *arg)
 					if (temp >= iter)
 					{
 						if (set_long(&cafe->table->lock,
-							&cafe->table->dinner_is_over, 1, cafe->table))
+							&cafe->table->dinner_is_over, 2, cafe->table))
 							return ((void *)1);
 						return ((void *)0);
 					}
@@ -374,8 +366,7 @@ void	*serving(void *arg)
 					get_time(MS));*/
 			}
 		}
-		//usleep(100);
-		sleeping(5e2, get_time(US, cafe->table), cafe->table);
+		sleeping(2e2, get_time(US, cafe->table), cafe->table);
 	}
 	return ((void *)0);
 }

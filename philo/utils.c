@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/28 20:11:50 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/10 13:26:43 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/10 15:24:20 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ int	printing_status(t_philo *philo, char *msg)
 		dinner = get_long(&philo->table->lock, &philo->table->dinner_is_over, philo->table);
 		if (dinner == -2)
 			return (1);
-		else if (dinner == 1)
+		else if (dinner == 1 || (dinner == 2))
 			return (0);
 		printf("%ld %ld %s", time, pos, msg);
 		if (handle_mtx(&philo->table->print_lock, UNLOCK, philo->table))
