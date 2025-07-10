@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:21:39 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/10 12:07:35 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/10 19:11:08 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,14 +72,14 @@ typedef struct s_philo
 	long			rip;
 	long			full;
 	long			counted_full;
-	t_table	*table;
+	t_table			*table;
 	t_fork			*fork1;
 	t_fork			*fork2;
 }	t_philo;
 
 typedef struct s_data
 {
-	t_table	*table;
+	t_table			*table;
 	t_fork			*forks;
 	t_philo			*philos;
 	pthread_t		waiter;
@@ -101,26 +101,37 @@ typedef enum e_time
 	MS
 }	t_time;
 
-int		init(t_data *cafe);
 int		add_and_check_arguments(char **argv, t_data *cafe);
-int		eating_phase(t_philo *philo);
+int		init(t_data *cafe);
+
+int		run_simulation(t_data *cafe);
+
+void	*run_alone(void *arg);
 
 void	*dinner(void *arg);
+int		thinking_phase(t_philo *philo, bool preset);
+int		think_about(t_philo *philo);
+int		eating_phase(t_philo *philo);
+
 void	*serving(void *arg);
-int		run_simulation(t_data *cafe);
-void	*run_alone(void *arg);
+int		is_philo_dead(t_philo *philo);
+int		is_everyone_full(t_philo *philo, long iter);
 
 int		cleanup(int code, int num, char *msg, t_data *cafe);
 void	*write_error(char *msg, t_table *table);
-int		handle_mtx(pthread_mutex_t *mtx, t_code code, t_table *table);
+int		printing_status(t_philo *philo, char *msg);
+
 int		wait_others(t_philo *philo);
 int		all_running(t_table *table);
+
+int		handle_mtx(pthread_mutex_t *mtx, t_code code, t_table *table);
+
 long	get_time(t_time time, t_table *table);
 int		sleeping(long sleeping_time, long start, t_table *table);
-int		printing_status(t_philo *philo, char *msg);
 
 long	increase_long(pthread_mutex_t *mtx, long *value, t_table *table);
 long	get_long(pthread_mutex_t *mtx, long *value, t_table *table);
 int		set_long(pthread_mutex_t *mtx, long *var, long value, t_table *table);
 int		set_bool(pthread_mutex_t *mtx, bool *var, bool value, t_table *table);
+
 #endif

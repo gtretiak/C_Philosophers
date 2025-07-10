@@ -3,7 +3,9 @@ HEADER = philo.h
 CFLAGS = -Wall -Wextra -Werror
 SPECFLAG = -pthread
 SPECFLAG2 = -fsanitize=thread
-SRCS = main.c free_and_errors.c settings.c parsing.c dinner.c utils.c get_and_set.c
+SRCS = main.c args.c core_flow.c dinner.c eating.c free_and_errors.c \
+       get_and_set.c init_and_set.c lone_philo.c output.c reflecting.c \
+       supervision.c time.c utils.c waiter.c
 DIR = ./
 OBJS = $(addprefix $(DIR), $(SRCS:.c=.o))
 TMP = .tmp
