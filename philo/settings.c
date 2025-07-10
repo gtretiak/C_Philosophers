@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/21 17:51:08 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/09 15:20:52 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/10 13:39:35 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ static void	setup_private(t_data *cafe, int i)
 	cafe->philos[i].rip = 0;
 	cafe->philos[i].meals_eaten = 0;
 	cafe->philos[i].full = 0;
+	cafe->philos[i].counted_full = 0;
 	cafe->philos[i].table = cafe->table;
 	cafe->forks[i].taken = 0;
 }

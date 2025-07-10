@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/21 15:48:53 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/09 19:23:36 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/10 13:32:23 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,6 +184,7 @@ int	eating_phase(t_philo *philo)
 		{
 			if (set_long(&philo->fork1->lock, &philo->fork1->taken, 0, philo->table))
 				return (1);
+			usleep(100 + (philo->pos % 10) * 100);
 			return (0);
 			//continue ;
 		}
@@ -204,9 +205,9 @@ int	eating_phase(t_philo *philo)
 			return (1);
 		if (handle_mtx(&philo->fork2->lock, UNLOCK, philo->table))
 			return (1);*/
-		if (set_long(&philo->fork1->lock, &philo->fork1->taken, 0, philo->table))
-			return (1);
 		if (set_long(&philo->fork2->lock, &philo->fork2->taken, 0, philo->table))
+			return (1);
+		if (set_long(&philo->fork1->lock, &philo->fork1->taken, 0, philo->table))
 			return (1);
 		//updating data
 		meals_nbr = get_long(&philo->table->lock, &philo->table->n_meals, philo->table);
@@ -347,24 +348,34 @@ void	*serving(void *arg)
 				return ((void *)1);
 			else if (temp == 1)
 			{
-				if (increase_long(&cafe->table->lock, &cafe->table->n_full, cafe->table))
-					return ((void *)1);
-				temp = get_long(&cafe->table->lock, &cafe->table->n_full, cafe->table);
+				temp = get_long(&cafe->philos[i].lock, &cafe->philos[i].counted_full, cafe->table);
 				if (temp < 0)
 					return ((void *)1);
-				if (temp >= iter)
+				else if (temp == 0)
 				{
-					if (set_long(&cafe->table->lock,
-							&cafe->table->dinner_is_over, 1, cafe->table))
+					if (increase_long(&cafe->table->lock, &cafe->table->n_full, cafe->table))
 						return ((void *)1);
-					return ((void *)0);
+					temp = get_long(&cafe->table->lock, &cafe->table->n_full, cafe->table);
+					if (temp < 0)
+						return ((void *)1);
+					if (temp >= iter)
+					{
+						if (set_long(&cafe->table->lock,
+							&cafe->table->dinner_is_over, 1, cafe->table))
+							return ((void *)1);
+						return ((void *)0);
+					}
+					if (set_long(&cafe->philos[i].lock,
+						&cafe->philos[i].counted_full, 1, cafe->table))
+						return ((void *)1);
 				}
-			/*	printf("Checking if %ld died (last meal: %ld, now: %ld)\n",
+ 				/*	printf("Checking if %ld died (last meal: %ld, now: %ld)\n",
 					cafe->philos[i].pos, cafe->philos[i].t_last_meal,
 					get_time(MS));*/
 			}
 		}
-		sleeping(1e3, get_time(US, cafe->table), cafe->table);
+		//usleep(100);
+		sleeping(5e2, get_time(US, cafe->table), cafe->table);
 	}
 	return ((void *)0);
 }

@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/28 20:11:50 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/09 18:12:50 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/10 13:26:43 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int	sleeping(long duration, long start, t_table *table)
 		if (elapsed < 0)
 			return (1);
 		if (duration - elapsed > 1e3)
-			usleep(5e2);
+			usleep((duration - elapsed) / 2);
 		else
 		{
 			while (get_time(US, table) - start < duration)
@@ -88,7 +88,7 @@ int	sleeping(long duration, long start, t_table *table)
 					return (1);
 				if (dinner == 1)
 					return (0);
-				;
+				//usleep(50);
 			}
 		}
 	}
@@ -114,6 +114,11 @@ int	printing_status(t_philo *philo, char *msg)
 			return (1);
 		if (handle_mtx(&philo->table->print_lock, LOCK, philo->table))
 			return (1);
+		dinner = get_long(&philo->table->lock, &philo->table->dinner_is_over, philo->table);
+		if (dinner == -2)
+			return (1);
+		else if (dinner == 1)
+			return (0);
 		printf("%ld %ld %s", time, pos, msg);
 		if (handle_mtx(&philo->table->print_lock, UNLOCK, philo->table))
 			return (1);

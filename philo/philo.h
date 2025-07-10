@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:21:39 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/09 15:02:30 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/10 12:07:35 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ typedef struct s_philo
 //				//priority for the waiter? OR for immediate exit if not allowed 
 	long			rip;
 	long			full;
+	long			counted_full;
 	t_table	*table;
 	t_fork			*fork1;
 	t_fork			*fork2;
