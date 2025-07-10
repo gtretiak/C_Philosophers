@@ -33,6 +33,7 @@ static int	supervise_loop(t_data *cafe, long iter, int *i)
 
 	while (1)
 	{
+		*i = -1;
 		while (++(*i) < iter
 			&& get_long(&cafe->table->lock,
 				&cafe->table->dinner_is_over, cafe->table) == 0
@@ -63,7 +64,6 @@ void	*serving(void *arg)
 	int		i;
 
 	cafe = (t_data *)arg;
-	i = -1;
 	if (wait_all_threads(cafe->table))
 		return ((void *)1);
 	iter = get_long(&cafe->table->lock, &cafe->table->n_philos, cafe->table);
