@@ -47,7 +47,7 @@ static int	thread_joining(t_data *cafe, long philo_nbr, int i)
 			&cafe->table->dinner_is_over, 1, cafe->table))
 		return (cleanup(11, i, THREAD, cafe));
 	if (philo_nbr == 1)
-		i = 1;
+		i = 0;
 	while (--i >= 0)
 	{
 		if (pthread_join(cafe->philos[i].th, (void *)&ret))

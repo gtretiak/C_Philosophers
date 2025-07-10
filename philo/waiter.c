@@ -41,10 +41,8 @@ static int	supervise_loop(t_data *cafe, long iter, int *i)
 				&cafe->table->n_full, cafe->table) < iter)
 		{
 			temp = is_philo_dead(&cafe->philos[*i]);
-			if (temp < 0)
-				return (1);
-			else if (temp == 1)
-				return (0);
+			if (temp != 0)
+				return (temp < 0);
 			temp = is_everyone_full(&cafe->philos[*i], iter);
 			if (temp < 0)
 				return (1);
