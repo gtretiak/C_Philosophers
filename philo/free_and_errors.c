@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/28 16:43:56 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/10 15:15:34 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/13 13:18:40 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,16 @@ void	*write_error(char *msg, t_table *table)
 {
 	short	i;
 
-	handle_mtx(&table->print_lock, LOCK, table);
+	if (ft_strncmp(msg, ARGS, 43))
+		handle_mtx(&table->print_lock, LOCK, table);
 	i = -1;
 	while (msg[++i])
 	{
-		if (write(2, &msg[i], 1))
+		if (write(2, &msg[i], 1) < 0)
 			return ((void *)1);
 	}
-	handle_mtx(&table->print_lock, UNLOCK, table);
+	if (ft_strncmp(msg, ARGS, 43))
+		handle_mtx(&table->print_lock, UNLOCK, table);
 	return ((void *)1);
 }
 
@@ -82,26 +84,24 @@ int	cleanup(int code, int num, char *msg, t_data *cafe)
 {
 	long	philo_nbr;
 
-	philo_nbr = cafe->table->n_philos_reserved;
-	if (msg)
+	if (code != 100)
+		philo_nbr = cafe->table->n_philos_reserved;
+	if (msg && ft_strncmp(msg, ARGS, 43))
 		write_error(msg, cafe->table);
+	else if (msg)
+		write_error(msg, NULL);
 	if (code == 22)
 		freeing(num, cafe);
 	else if (code == 35)
-	{
 		destroying_mutexes(num, cafe);
-		freeing(3, cafe);
-	}
 	else if (code == 11)
 	{
 		destroying_mutexes(philo_nbr * 2 + 2, cafe);
 		detaching_threads(num, philo_nbr, cafe);
-		freeing(3, cafe);
 	}
 	else if (code == 0)
-	{
 		destroying_mutexes(philo_nbr * 2 + 2, cafe);
+	if (code == 35 || code == 11 || code == 0)
 		freeing(3, cafe);
-	}
 	return (code);
 }

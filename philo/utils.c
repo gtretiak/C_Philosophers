@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/28 20:11:50 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/10 16:06:15 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/13 12:45:49 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,5 +41,20 @@ int	all_running(t_table *table)
 		return (-1);
 	if (n_threads == philo_nbr)
 		return (1);
+	return (0);
+}
+
+int	ft_strncmp(char *s1, char *s2, int n)
+{
+	while (n)
+	{
+		if (*s1 != *s2)
+			return (1);
+		if (*s1 == '\0')
+			return (0);
+		s1++;
+		s2++;
+		n--;
+	}
 	return (0);
 }

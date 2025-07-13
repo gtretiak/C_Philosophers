@@ -6,7 +6,7 @@
 /*   By: gtretiak <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:21:39 by gtretiak          #+#    #+#             */
-/*   Updated: 2025/07/10 19:11:08 by gtretiak         ###   ########.fr       */
+/*   Updated: 2025/07/13 12:46:20 by gtretiak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ int		printing_status(t_philo *philo, char *msg);
 
 int		wait_others(t_philo *philo);
 int		all_running(t_table *table);
-
+int		ft_strncmp(char *s1, char *s2, int n);
 int		handle_mtx(pthread_mutex_t *mtx, t_code code, t_table *table);
 
 long	get_time(t_time time, t_table *table);
