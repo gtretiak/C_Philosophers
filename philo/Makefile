@@ -21,7 +21,7 @@ $(DIR)%.o: $(DIR)%.c $(HEADER)
 
 $(NAME): $(OBJS)
 	@echo "Linking object files into the final executable...";
-	@cc $(OBJS) -o $@ $(SPECFLAG) 
+	@cc $(OBJS) -o $@ $(SPECFLAG) $(SPECFLAG2)
 	@echo "Done.\n\n\n";
 	@echo "Welcome to the \"🇬 🇷 🇪 🇪 🇨 🇪 "\
 	"\" cafe!\n"\
