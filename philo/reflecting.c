@@ -25,8 +25,10 @@ int	thinking_phase(t_philo *philo, bool preset)
 			&philo->table->n_philos, philo->table);
 	if (philos_nbr == -2)
 		return (1);
-	if (philos_nbr % 2 == 0) // if number of philos is even, we exit, the system is already fair
+	if (philos_nbr % 2 == 0) // if number of philos is even, we exit, the system is already fair (all philos are perfectly paired)
 		return (0);
+	// Otherwise there´s always at least one philo unable to eat in each round. What if they will be slower than others in two rounds? They will die!
+	// We should ensure fairness by reducing contention, so after sleeping a philo won´t immediately try to grab forks
 	t_to_eat = get_long(&philo->table->lock,
 			&philo->table->t_eat, philo->table);
 	t_to_sleep = get_long(&philo->table->lock,
