@@ -45,7 +45,7 @@ void	*run_alone(void *arg)
 			return ((void *)0);
 		else if (temp < 0)
 			return ((void *)1);
-		temp = get_long(&philo->lock, &philo->rip, philo->table); // or by dead state
+		temp = get_long(&philo->lock, &philo->rip, philo->table); // or by dead state (which is the same here, thus might be removed)
 		if (temp < 0)
 			return ((void *)1);
 		else if (temp == 1)
