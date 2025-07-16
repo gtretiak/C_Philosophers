@@ -19,7 +19,7 @@ int	main(int argc, char **argv)
 
 	if (argc != 5 && argc != 6)
 		return (cleanup(100, 0, ARGS, NULL));
-	ret = add_and_check_arguments(argv, &cafe);
+	ret = add_and_check_arguments(argv, &cafe); // Here and everywhere we return an error code back to main to see the exit status
 	if (ret)
 		return (ret);
 	ret = init(&cafe);
