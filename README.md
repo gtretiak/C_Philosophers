@@ -48,7 +48,7 @@ cd philo && make
 ### Example
 ```bash
 ./philo 5 800 200 200    # 5 philosophers, 800ms to die, 200ms to eat/sleep
-./philo 4 410 200 200 3  # Stop after each philosopher eats 3 times
+./philo 4 410 200 200 3  # Stop after all philosophers eat at least 3 times
 ```
 
 ## 📊 Program Output
