@@ -14,7 +14,7 @@
 
 static int	start_alone(t_philo *philo)
 {
-	if (wait_others(philo))
+	if (wait_others(philo)) // at least for the waiter, because the waiter should allow to run simulation
 		return (1);
 	if (increase_long(&philo->table->lock,
 			&philo->table->running_threads, philo->table))
@@ -37,7 +37,7 @@ void	*run_alone(void *arg)
 	philo = (t_philo *)arg;
 	if (start_alone(philo))
 		return ((void *)1);
-	while (1)
+	while (1) // endless loop until the dinner is set as over by the waiter
 	{
 		temp = get_long(&philo->table->lock,
 				&philo->table->dinner_is_over, philo->table);
@@ -45,7 +45,7 @@ void	*run_alone(void *arg)
 			return ((void *)0);
 		else if (temp < 0)
 			return ((void *)1);
-		temp = get_long(&philo->lock, &philo->rip, philo->table);
+		temp = get_long(&philo->lock, &philo->rip, philo->table); // or by dead state
 		if (temp < 0)
 			return ((void *)1);
 		else if (temp == 1)
