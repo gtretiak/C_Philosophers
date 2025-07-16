@@ -50,7 +50,7 @@ static int	setup_common(t_data *cafe)
 	if (handle_mtx(&cafe->table->print_lock, INIT, cafe->table))
 		return (cleanup(35, 1, NULL, cafe));
 	cafe->table->n_philos_reserved = cafe->table->n_philos; // we copy it for cleanup purposes, to use it without mutexes
-	cafe->table->dinner_is_over = 0; (main simulation flag)
+	cafe->table->dinner_is_over = 0; // main simulation flag
 	cafe->table->all_ready = 0; // the flag to see that all threads are ready to start simultaneously
 	cafe->table->running_threads = 0; // for counting running threads before start for synchronization 
 	cafe->table->n_full = 0; // number of philos that are full (to compare with total number of philos)
