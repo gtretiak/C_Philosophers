@@ -22,6 +22,7 @@
 # include <stdbool.h>
 # include <limits.h>
 
+// macro constants for simplifying function calls. The compiler replaces every occurence of the macro with its defined value during preprocessing
 # define ARGS "Error: invalid number of arguments. Exit.\n"
 # define INVALID "Error: all arguments should be positive integers. Exit.\n"
 # define NO_MEALS "Error: there is no food (0 meals). Exit.\n"
@@ -49,7 +50,7 @@ typedef struct s_table
 	pthread_mutex_t	print_lock;
 	long			t_start;
 	long			n_philos;
-	long			n_philos_reserved;
+	long			n_philos_reserved; // for cleaning up
 	long			t_eat;
 	long			t_sleep;
 	long			t_die;
@@ -67,8 +68,6 @@ typedef struct s_philo
 	long			pos;
 	long			meals_eaten;
 	long			t_last_meal;
-//	bool		allowed_to_eat; //or ready to eat as a signal to the waiter?
-//				//priority for the waiter? OR for immediate exit if not allowed 
 	long			rip;
 	long			full;
 	long			counted_full;
@@ -97,8 +96,8 @@ typedef enum e_code
 
 typedef enum e_time
 {
-	US,
-	MS
+	US, // micro seconds
+	MS // mili seconds
 }	t_time;
 
 int		add_and_check_arguments(char **argv, t_data *cafe);
@@ -119,6 +118,7 @@ int		is_everyone_full(t_philo *philo, long iter);
 
 int		cleanup(int code, int num, char *msg, t_data *cafe);
 void	*write_error(char *msg, t_table *table);
+
 int		printing_status(t_philo *philo, char *msg);
 
 int		wait_others(t_philo *philo);
@@ -129,6 +129,7 @@ int		handle_mtx(pthread_mutex_t *mtx, t_code code, t_table *table);
 long	get_time(t_time time, t_table *table);
 int		sleeping(long sleeping_time, long start, t_table *table);
 
+// getters and setters
 long	increase_long(pthread_mutex_t *mtx, long *value, t_table *table);
 long	get_long(pthread_mutex_t *mtx, long *value, t_table *table);
 int		set_long(pthread_mutex_t *mtx, long *var, long value, t_table *table);
