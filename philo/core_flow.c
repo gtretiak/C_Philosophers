@@ -48,7 +48,7 @@ static int	thread_joining(t_data *cafe, long philo_nbr, int i)
 		return (cleanup(11, i, THREAD, cafe));
 	if (philo_nbr == 1)
 		i = 1;
-	while (--i >= 0)
+	while (--i >= 0) // we go backwards in a loop, because if one join fails we still have to join (try) the rest
 	{
 		if (pthread_join(cafe->philos[i].th, (void *)&ret))
 			return (cleanup(11, i, THREAD, cafe));
