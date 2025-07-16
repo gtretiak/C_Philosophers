@@ -22,9 +22,9 @@ long	get_time(t_time time, t_table *table)
 		return (-666);
 	}
 	if (time == US)
-		return (ts.tv_sec * 1e6 + ts.tv_usec);
+		return (ts.tv_sec * 1e6 + ts.tv_usec); // we convert seconds to microseconds
 	else if (time == MS)
-		return (ts.tv_sec * 1e3 + ts.tv_usec / 1e3);
+		return (ts.tv_sec * 1e3 + ts.tv_usec / 1e3); // we convert seconds and microseconds to miliseconds
 	return (42);
 }
 
@@ -48,9 +48,9 @@ int	sleeping(long duration, long start, t_table *table)
 	long	elapsed;
 	long	dinner;
 
-	if (start < 0)
+	if (start < 0) // this is an error
 		return (1);
-	while (get_time(US, table) - start < duration)
+	while (get_time(US, table) - start < duration) // while elapsed since start time is less than given timestamp for sleeping
 	{
 		dinner = get_long(&table->lock, &table->dinner_is_over, table);
 		elapsed = get_time(US, table) - start;
@@ -58,9 +58,9 @@ int	sleeping(long duration, long start, t_table *table)
 			return (1);
 		if (dinner == 1)
 			break ;
-		if (duration - elapsed > 1e3)
+		if (duration - elapsed > 1e3) // if the difference more than 1ms, we sleep half-time
 			usleep((duration - elapsed) / 2);
-		else
+		else // if less, we wait microseconds until the end, constantly checking if dinner is over or not
 			return (wait_micro(start + duration, table));
 	}
 	return (0);
