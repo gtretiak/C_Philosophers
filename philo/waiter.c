@@ -31,7 +31,7 @@ static int	supervise_loop(t_data *cafe, long iter, int *i)
 {
 	long	temp;
 
-	while (1)
+	while (1) // sleeping from cycle to cycle, we are constantly checking all the philos´ state
 	{
 		*i = -1;
 		while (++(*i) < iter
