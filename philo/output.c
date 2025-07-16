@@ -17,7 +17,7 @@ static int	printing_status2(t_philo *philo, long pos, char *msg, long start)
 	long	time;
 	long	dinner;
 
-	time = get_time(MS, philo->table) - start;
+	time = get_time(MS, philo->table) - start; // we calculate timestamp elapsed since the simulation´s start
 	if (time < 0)
 		return (1);
 	if (handle_mtx(&philo->table->print_lock, LOCK, philo->table))
@@ -34,7 +34,7 @@ static int	printing_status2(t_philo *philo, long pos, char *msg, long start)
 		handle_mtx(&philo->table->print_lock, UNLOCK, philo->table);
 		return (0);
 	}
-	printf("%ld %ld %s", time, pos, msg);
+	printf("%ld %ld %s", time, pos, msg); // if dinner is not finished we print actual state of a philo
 	if (handle_mtx(&philo->table->print_lock, UNLOCK, philo->table))
 		return (1);
 	return (0);
@@ -52,7 +52,7 @@ int	printing_status(t_philo *philo, char *msg)
 	pos = get_long(&philo->lock, &philo->pos, philo->table);
 	if (dinner == -2 || start == -2 || pos == -2)
 		return (1);
-	if (dinner != 0)
+	if (dinner != 0) // if dinner is over we don´t need to print anymore
 		return (0);
 	return (printing_status2(philo, pos, msg, start));
 }
