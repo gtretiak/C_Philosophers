@@ -14,21 +14,22 @@
 
 static int	before_start(t_philo *philo)
 {
-	if (wait_others(philo))
+	if (wait_others(philo)) // all the philos should start at the same time
 		return (1);
 	if (increase_long(&philo->table->lock,
 			&philo->table->running_threads, philo->table))
 		return (1);
 	if (set_long(&philo->lock, &philo->t_last_meal,
-			get_time(MS, philo->table), philo->table))
+			get_time(MS, philo->table), philo->table)) // if we managed to reach this line, then all the threads are running, so let´s set the time
 		return (1);
-	if (think_about(philo))
+	if (think_about(philo)) // before acting every philo should ask for the rules from a waiter
 		return (1);
 	return (0);
 }
 
 static int	whatsup(t_philo *philo)
 {
+	// every philo uses this function a lot, constantly checking if they are dead or if the dinner is over by any reason
 	long	temp;
 
 	temp = get_long(&philo->table->lock,
