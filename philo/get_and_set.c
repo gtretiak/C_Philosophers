@@ -46,7 +46,7 @@ int	set_long(pthread_mutex_t *mtx, long *var, long value, t_table *table)
 {
 	int	ret;
 
-	if (value == -666 || handle_mtx(mtx, LOCK, table))
+	if (value == -666 || handle_mtx(mtx, LOCK, table)) // -666 for gettimeofday return value checking
 		return (1);
 	else
 	{
