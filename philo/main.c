@@ -33,10 +33,10 @@ int	main(int argc, char **argv)
 }
 /*
  *
- *create routine function with a loop until one philo died...
+ *We should create routine function with a loop until one philo died...
 ... thus we need the check for it
  *determine routine and the order: think, eat, sleep, repeat 
- *implement logs
+ *implement logs (state printing)
  *
  * Philos cannot communicate with each other...
  * ...neither they know if another philo is about to die
@@ -49,18 +49,18 @@ int	main(int argc, char **argv)
 ... (we need to make sure another fork is available).
  *
  *if mutex is locked other threads should either:
- - constantly busy wait - good if blocking time is short;
- - wait in an atomic mode (spinlock) - good if blocking time is long
- - poll for updates from time to time...
-... and sleep [PREFERED OPTION] for a meal time?
+ - 1) constantly busy wait - good if blocking time is short;
+ - 2) wait in an atomic mode (spinlock) - good if blocking time is long
+ - 3) poll for updates from time to time...
+... and sleep for a meal time [PREFERED OPTION]
  *
  * Deadlock - when someone waits for resources (forks) to release
  * Conditions:
  * - the resource (a fork) is locked
  * - the resource (one fork) is taken..,
  *   ...but another resource (another fork) is locked
- *Deadlock might be avoided, prevented, detected...
- ...and mitigated or ignored (with data overwritten)
+ *Deadlock might be 1) avoided, 2) prevented, 3)detected...
+ ...and mitigated or 4) ignored (with data overwritten)
 
  *   Starvation - when the process with lower priority...
  *   ...is long waiting (A philo dies)
