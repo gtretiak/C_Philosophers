@@ -68,16 +68,16 @@ static void	detaching_threads(int num, int philo_nbr, t_data *cafe)
 	int	i;
 
 	i = -1;
-	if (num > philo_nbr)
+	if (num > philo_nbr) // this is for the waiter-thread
 	{
 		--num;
 		if (pthread_detach(cafe->waiter))
-			write_error(THREAD, cafe->table);
+			write_error(THREAD, cafe->table); // even if error, we should try to detach others
 	}
 	while (++i < num)
 	{
 		if (pthread_detach(cafe->philos[i].th))
-			write_error(THREAD, cafe->table);
+			write_error(THREAD, cafe->table); 
 	}
 }
 
@@ -85,24 +85,24 @@ int	cleanup(int code, int num, char *msg, t_data *cafe)
 {
 	long	philo_nbr;
 
-	if (code != 100)
-		philo_nbr = cafe->table->n_philos_reserved;
-	if (msg && ft_strncmp(msg, ARGS, 43))
+	if (code != 100) // otherwise table is never malloced -> segfault!
+		philo_nbr = cafe->table->n_philos_reserved; // we don´t need a mutex, since this is the only place where we fetch the data from it
+	if (msg && ft_strncmp(msg, ARGS, 43)) // Again, if it´s the ARGS error, table is never malloced
 		write_error(msg, cafe->table);
-	else if (msg)
+	else if (msg) // Instead, for ARGS, we pass NULL
 		write_error(msg, NULL);
 	if (code == 22)
-		freeing(num, cafe);
+		freeing(num, cafe); // num serves as an indicator of how many memory blocks were allocated and should be freed
 	else if (code == 35)
-		destroying_mutexes(num, cafe);
+		destroying_mutexes(num, cafe); // we use num as an indicator of how many mutexes we should destroy
 	else if (code == 11)
 	{
-		destroying_mutexes(philo_nbr * 2 + 2, cafe);
-		detaching_threads(num, philo_nbr, cafe);
+		destroying_mutexes(philo_nbr * 2 + 2, cafe); // here we know that we previously successfully created mutexes for every philo, every fork + for table and printing
+		detaching_threads(num, philo_nbr, cafe); // we use num as an indicator of how many threads were created and should be detached
 	}
 	else if (code == 0)
 		destroying_mutexes(philo_nbr * 2 + 2, cafe);
 	if (code == 35 || code == 11 || code == 0)
-		freeing(3, cafe);
+		freeing(3, cafe); // with those codes we can be absolutely sure that all three memory blocks we use in the program were allocated
 	return (code);
 }
