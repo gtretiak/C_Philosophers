@@ -16,7 +16,7 @@ int	wait_others(t_philo *philo)
 {
 	long	check;
 
-	while (1)
+	while (1) // sleeping from time to time we are constantly checking if all philos are ready to start dinner
 	{
 		check = get_long(&philo->table->lock,
 				&philo->table->all_ready, philo->table);
