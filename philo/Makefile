@@ -2,7 +2,7 @@ NAME = philo
 HEADER = philo.h
 CFLAGS = -Wall -Wextra -Werror
 SPECFLAG = -pthread
-SPECFLAG2 = -fsanitize=thread # to detect data races, incorrect locking, use-after-destroy bugs and thread leaks
+SPECFLAG2 = -fsanitize=thread # to detect data races, incorrect locking, use-after-destroy bugs and thread leaks (might not work with WSL or container-based GitHub Codespaces)
 SRCS = main.c args.c core_flow.c dinner.c eating.c free_and_errors.c \
        get_and_set.c init_and_set.c lone_philo.c output.c reflecting.c \
        supervision.c time.c utils.c waiter.c
