@@ -17,16 +17,16 @@ void	*write_error(char *msg, t_table *table)
 	short	i;
 
 	(void)table;
-	//if (ft_strncmp(msg, ARGS, 43))
-	//	handle_mtx(&table->print_lock, LOCK, table);
+	if (ft_strncmp(msg, ARGS, 43))
+		handle_mtx(&table->print_lock, LOCK, table);
 	i = -1;
 	while (msg[++i])
 	{
 		if (write(2, &msg[i], 1) < 0)
 			return ((void *)1);
 	}
-	//if (ft_strncmp(msg, ARGS, 43))
-	//	handle_mtx(&table->print_lock, UNLOCK, table);
+	if (ft_strncmp(msg, ARGS, 43))
+		handle_mtx(&table->print_lock, UNLOCK, table);
 	return ((void *)1);
 }
 

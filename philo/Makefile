@@ -17,11 +17,11 @@ $(DIR)%.o: $(DIR)%.c $(HEADER)
 		echo "Compiling source files into object files...";\
 		touch $(TMP); \
 	fi
-	@cc $(CFLAGS) -g -I. -c $< -o $@
+	@cc $(CFLAGS) $(SPECFLAG) -g -I. -c $< -o $@
 
 $(NAME): $(OBJS)
 	@echo "Linking object files into the final executable...";
-	@cc $(OBJS) -o $@ $(SPECFLAG) $(SPECFLAG2)
+	@cc $(CFLAGS) $(SPECFLAG) $(OBJS) -o $@ 
 	@echo "Done.\n\n\n";
 	@echo "Welcome to the \"🇬 🇷 🇪 🇪 🇨 🇪 "\
 	"\" cafe!\n"\
@@ -31,7 +31,7 @@ $(NAME): $(OBJS)
 	"time_to_sleep\n+6. [optional] number_of_times_each_philosopher_must_eat"
 	@rm -rf $(TMP);
 
-.PHONY: clean fclean re all
+.PHONY: clean fclean re all tsan
 
 clean:
 	@rm -f $(OBJS)
